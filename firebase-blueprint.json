@@ -1,0 +1,497 @@
+{
+  "entities": {
+    "UserProfile": {
+      "title": "UserProfile",
+      "description": "Authenticated member profile and private notification preferences (strictly separated from RBAC roles).",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "displayName": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "email": { "type": "string", "maxLength": 200 },
+        "phone": { "type": "string", "maxLength": 40 },
+        "country": { "type": "string", "maxLength": 100 },
+        "city": { "type": "string", "maxLength": 100 },
+        "consentGiven": { "type": "boolean" },
+        "notificationPrefs": { "type": "object" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "displayName", "createdAt", "updatedAt"]
+    },
+    "RoleAssignment": {
+      "title": "RoleAssignment",
+      "description": "RBAC role document stored separately from user profiles to prevent self-elevation.",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "email": { "type": "string", "maxLength": 200 },
+        "displayName": { "type": "string", "maxLength": 100 },
+        "role": {
+          "type": "string",
+          "enum": [
+            "SUPER_ADMIN",
+            "SENIOR_PASTOR",
+            "PASTOR",
+            "PRAYER_COORDINATOR",
+            "FOLLOW_UP_TEAM",
+            "MEDIA_ADMINISTRATOR",
+            "EVENT_ADMINISTRATOR",
+            "MEMBER"
+          ]
+        },
+        "assignedBy": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "role", "assignedBy", "createdAt", "updatedAt"]
+    },
+    "PrayerRequest": {
+      "title": "PrayerRequest",
+      "description": "Member or visitor prayer request with strict privacy classification and tracking status.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "maxLength": 128 },
+        "name": { "type": "string", "maxLength": 100 },
+        "email": { "type": "string", "maxLength": 200 },
+        "phone": { "type": "string", "maxLength": 40 },
+        "category": {
+          "type": "string",
+          "enum": [
+            "Family and Marriage",
+            "Health and Healing",
+            "Career and Employment",
+            "Financial Needs",
+            "Spiritual Growth",
+            "Children and Relationships",
+            "Thanksgiving",
+            "Other"
+          ]
+        },
+        "description": { "type": "string", "minLength": 5, "maxLength": 3000 },
+        "preferredContact": { "type": "string", "enum": ["Email", "Phone", "WhatsApp", "In-App Only", "No Contact Needed"] },
+        "privacy": { "type": "string", "enum": ["private", "prayer_team", "public_wall"] },
+        "status": { "type": "string", "enum": ["Received", "Assigned", "Follow-up", "Closed"] },
+        "assignedPastorId": { "type": "string", "maxLength": 128 },
+        "assignedPastorName": { "type": "string", "maxLength": 100 },
+        "followUpDate": { "type": "string", "maxLength": 40 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["category", "description", "preferredContact", "privacy", "status", "createdAt", "updatedAt"]
+    },
+    "PrayerAssignment": {
+      "title": "PrayerAssignment",
+      "description": "Internal pastoral assignment, status history, and private pastoral notes (never exposed to requester).",
+      "type": "object",
+      "properties": {
+        "requestId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "assignedToUid": { "type": "string", "maxLength": 128 },
+        "assignedToName": { "type": "string", "maxLength": 100 },
+        "assignedByUid": { "type": "string", "maxLength": 128 },
+        "pastoralNotes": { "type": "string", "maxLength": 4000 },
+        "followUpDate": { "type": "string", "maxLength": 40 },
+        "statusHistory": { "type": "array" },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["requestId", "assignedByUid", "createdAt", "updatedAt"]
+    },
+    "PrayerWallEntry": {
+      "title": "PrayerWallEntry",
+      "description": "Moderated public prayer wall entry stripped of all private contact details.",
+      "type": "object",
+      "properties": {
+        "sourceRequestId": { "type": "string", "maxLength": 128 },
+        "displayName": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "category": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "requestSummary": { "type": "string", "minLength": 5, "maxLength": 1500 },
+        "prayingCount": { "type": "number" },
+        "isApproved": { "type": "boolean" },
+        "approvedBy": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["displayName", "category", "requestSummary", "prayingCount", "isApproved", "createdAt", "updatedAt"]
+    },
+    "PrayerResponse": {
+      "title": "PrayerResponse",
+      "description": "Member 'I am praying' action or encouragement note on a moderated prayer wall entry.",
+      "type": "object",
+      "properties": {
+        "wallId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "userId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "authorName": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "type": { "type": "string", "enum": ["praying", "encouragement"] },
+        "message": { "type": "string", "maxLength": 500 },
+        "isApproved": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["wallId", "userId", "authorName", "type", "isApproved", "createdAt"]
+    },
+    "Testimony": {
+      "title": "Testimony",
+      "description": "User-submitted testimony subject to administrative review before publication.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "maxLength": 128 },
+        "authorName": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "isAnonymous": { "type": "boolean" },
+        "category": { "type": "string", "minLength": 1, "maxLength": 80 },
+        "description": { "type": "string", "minLength": 10, "maxLength": 4000 },
+        "photoUrl": { "type": "string", "maxLength": 500 },
+        "permissionToPublish": { "type": "boolean" },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected"] },
+        "reviewedBy": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["authorName", "isAnonymous", "category", "description", "permissionToPublish", "status", "createdAt", "updatedAt"]
+    },
+    "Visitor": {
+      "title": "Visitor",
+      "description": "First-time visitor registration record with NDPA 2023 consent flag.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "maxLength": 128 },
+        "fullName": { "type": "string", "minLength": 2, "maxLength": 120 },
+        "email": { "type": "string", "maxLength": 200 },
+        "phone": { "type": "string", "maxLength": 40 },
+        "country": { "type": "string", "minLength": 2, "maxLength": 100 },
+        "city": { "type": "string", "minLength": 2, "maxLength": 100 },
+        "discoverySource": { "type": "string", "maxLength": 120 },
+        "visitedBefore": { "type": "boolean" },
+        "wantsContact": { "type": "boolean" },
+        "consentGiven": { "type": "boolean" },
+        "status": { "type": "string", "enum": ["New Visitor", "Assigned", "Contacted", "Engaging", "Connected", "Completed"] },
+        "assignedToUid": { "type": "string", "maxLength": 128 },
+        "assignedToName": { "type": "string", "maxLength": 100 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["fullName", "country", "city", "visitedBefore", "wantsContact", "consentGiven", "status", "createdAt", "updatedAt"]
+    },
+    "VisitorFollowUp": {
+      "title": "VisitorFollowUp",
+      "description": "Confidential follow-up log and newcomer journey tracking for first-time visitors.",
+      "type": "object",
+      "properties": {
+        "visitorId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "staffUid": { "type": "string", "minLength": 1, "maxLength": 128 },
+        "staffName": { "type": "string", "minLength": 1, "maxLength": 100 },
+        "channel": { "type": "string", "maxLength": 40 },
+        "outcome": { "type": "string", "minLength": 2, "maxLength": 500 },
+        "nextFollowUpDate": { "type": "string", "maxLength": 40 },
+        "journeyDay": { "type": "number" },
+        "internalNotes": { "type": "string", "maxLength": 2000 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["visitorId", "staffUid", "staffName", "outcome", "createdAt"]
+    },
+    "ServiceConfig": {
+      "title": "ServiceConfig",
+      "description": "Official weekly service schedule and configurable minister announcement.",
+      "type": "object",
+      "properties": {
+        "type": { "type": "string", "enum": ["wednesday", "sunday"] },
+        "title": { "type": "string", "maxLength": 120 },
+        "theme": { "type": "string", "maxLength": 120 },
+        "description": { "type": "string", "maxLength": 1000 },
+        "ministerName": { "type": "string", "maxLength": 120 },
+        "ministerRole": { "type": "string", "maxLength": 80 },
+        "venue": { "type": "string", "maxLength": 300 },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["type", "title", "venue", "updatedAt"]
+    },
+    "Event": {
+      "title": "Event",
+      "description": "Ministry event, convention, crusade, outreach or special prayer programme.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "minLength": 2, "maxLength": 160 },
+        "category": { "type": "string", "maxLength": 80 },
+        "theme": { "type": "string", "maxLength": 200 },
+        "description": { "type": "string", "minLength": 5, "maxLength": 5000 },
+        "bannerUrl": { "type": "string", "maxLength": 600 },
+        "date": { "type": "string", "minLength": 4, "maxLength": 40 },
+        "startTime": { "type": "string", "minLength": 2, "maxLength": 40 },
+        "endTime": { "type": "string", "maxLength": 40 },
+        "venue": { "type": "string", "minLength": 2, "maxLength": 300 },
+        "guestMinisters": { "type": "string", "maxLength": 400 },
+        "registrationEnabled": { "type": "boolean" },
+        "contactInfo": { "type": "string", "maxLength": 300 },
+        "isPublished": { "type": "boolean" },
+        "createdBy": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "category", "description", "date", "startTime", "venue", "registrationEnabled", "isPublished", "createdBy", "createdAt", "updatedAt"]
+    },
+    "EventRegistration": {
+      "title": "EventRegistration",
+      "description": "Attendee registration for a published ministry event.",
+      "type": "object",
+      "properties": {
+        "eventId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "userId": { "type": "string", "maxLength": 128 },
+        "fullName": { "type": "string", "minLength": 2, "maxLength": 120 },
+        "email": { "type": "string", "minLength": 3, "maxLength": 200 },
+        "phone": { "type": "string", "maxLength": 40 },
+        "country": { "type": "string", "maxLength": 100 },
+        "city": { "type": "string", "maxLength": 100 },
+        "attendanceMode": { "type": "string", "enum": ["In Person", "Online"] },
+        "consentGiven": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["eventId", "fullName", "email", "attendanceMode", "consentGiven", "createdAt"]
+    },
+    "Sermon": {
+      "title": "Sermon",
+      "description": "Published sermon, video/audio message, Bible study, publication, or ministry teaching.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "minLength": 2, "maxLength": 180 },
+        "contentType": { "type": "string", "enum": ["sermon", "video", "audio", "bible_study", "publication", "teaching"] },
+        "minister": { "type": "string", "minLength": 2, "maxLength": 120 },
+        "date": { "type": "string", "minLength": 4, "maxLength": 40 },
+        "description": { "type": "string", "maxLength": 5000 },
+        "thumbnailUrl": { "type": "string", "maxLength": 600 },
+        "videoUrl": { "type": "string", "maxLength": 600 },
+        "audioUrl": { "type": "string", "maxLength": 600 },
+        "scriptureReferences": { "type": "string", "maxLength": 300 },
+        "topics": { "type": "array" },
+        "isPublished": { "type": "boolean" },
+        "createdBy": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "contentType", "minister", "date", "isPublished", "createdBy", "createdAt", "updatedAt"]
+    },
+    "Devotional": {
+      "title": "Devotional",
+      "description": "Daily Scripture, devotional reflection, prayer point, or prayer challenge day.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "minLength": 2, "maxLength": 160 },
+        "bibleVerse": { "type": "string", "minLength": 5, "maxLength": 1500 },
+        "scriptureReference": { "type": "string", "minLength": 2, "maxLength": 100 },
+        "reflection": { "type": "string", "minLength": 5, "maxLength": 5000 },
+        "prayerPoint": { "type": "string", "minLength": 5, "maxLength": 2000 },
+        "publishDate": { "type": "string", "minLength": 4, "maxLength": 40 },
+        "readingPlan": { "type": "string", "maxLength": 200 },
+        "isPublished": { "type": "boolean" },
+        "createdBy": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "bibleVerse", "scriptureReference", "reflection", "prayerPoint", "publishDate", "isPublished", "createdBy", "createdAt", "updatedAt"]
+    },
+    "PrayerChallenge": {
+      "title": "PrayerChallenge",
+      "description": "7, 14, or 21-day guided prayer programme.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "minLength": 2, "maxLength": 160 },
+        "description": { "type": "string", "maxLength": 2000 },
+        "durationDays": { "type": "number" },
+        "days": { "type": "array" },
+        "isPublished": { "type": "boolean" },
+        "createdBy": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "durationDays", "days", "isPublished", "createdBy", "createdAt", "updatedAt"]
+    },
+    "ChallengeProgress": {
+      "title": "ChallengeProgress",
+      "description": "Private user participation progress on a prayer challenge (no public rankings).",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "challengeId": { "type": "string", "minLength": 1, "maxLength": 128, "pattern": "^[a-zA-Z0-9_\\-]+$" },
+        "completedDays": { "type": "array" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "challengeId", "completedDays", "updatedAt"]
+    },
+    "Announcement": {
+      "title": "Announcement",
+      "description": "Official ministry announcement.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "minLength": 2, "maxLength": 160 },
+        "summary": { "type": "string", "minLength": 4, "maxLength": 500 },
+        "body": { "type": "string", "maxLength": 4000 },
+        "category": { "type": "string", "maxLength": 60 },
+        "isPinned": { "type": "boolean" },
+        "isPublished": { "type": "boolean" },
+        "createdBy": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "summary", "category", "isPinned", "isPublished", "createdBy", "createdAt", "updatedAt"]
+    },
+    "Notification": {
+      "title": "Notification",
+      "description": "In-app notification broadcast or targeted user notification.",
+      "type": "object",
+      "properties": {
+        "title": { "type": "string", "minLength": 2, "maxLength": 160 },
+        "body": { "type": "string", "minLength": 2, "maxLength": 1000 },
+        "category": { "type": "string", "maxLength": 60 },
+        "targetUid": { "type": "string", "maxLength": 128 },
+        "linkPath": { "type": "string", "maxLength": 200 },
+        "isPublished": { "type": "boolean" },
+        "createdBy": { "type": "string", "maxLength": 128 },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["title", "body", "category", "isPublished", "createdBy", "createdAt"]
+    },
+    "PastoralRequest": {
+      "title": "PastoralRequest",
+      "description": "Confidential Contact a Pastor / counselling / visit request.",
+      "type": "object",
+      "properties": {
+        "userId": { "type": "string", "maxLength": 128 },
+        "fullName": { "type": "string", "minLength": 2, "maxLength": 120 },
+        "email": { "type": "string", "maxLength": 200 },
+        "phone": { "type": "string", "maxLength": 40 },
+        "requestType": {
+          "type": "string",
+          "enum": [
+            "General spiritual question",
+            "Pastoral counselling request",
+            "Family and marriage counselling request",
+            "Hospital or home visit request",
+            "Other pastoral assistance"
+          ]
+        },
+        "message": { "type": "string", "minLength": 5, "maxLength": 3000 },
+        "preferredContact": { "type": "string", "maxLength": 40 },
+        "consentGiven": { "type": "boolean" },
+        "status": { "type": "string", "enum": ["Received", "Assigned", "In Progress", "Closed"] },
+        "assignedPastorUid": { "type": "string", "maxLength": 128 },
+        "assignedPastorName": { "type": "string", "maxLength": 100 },
+        "createdAt": { "type": "string", "format": "date-time" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["fullName", "requestType", "message", "preferredContact", "consentGiven", "status", "createdAt", "updatedAt"]
+    },
+    "Department": {
+      "title": "Department",
+      "description": "Ministry department and volunteer opportunity listing.",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string", "minLength": 2, "maxLength": 120 },
+        "description": { "type": "string", "minLength": 5, "maxLength": 1500 },
+        "meetingInfo": { "type": "string", "maxLength": 200 },
+        "isOpenForVolunteers": { "type": "boolean" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["name", "description", "isOpenForVolunteers", "updatedAt"]
+    },
+    "AppSetting": {
+      "title": "AppSetting",
+      "description": "Publicly readable ministry configuration (livestream URL, welcome video, contact channels).",
+      "type": "object",
+      "properties": {
+        "livestreamUrl": { "type": "string", "maxLength": 500 },
+        "isLiveNow": { "type": "boolean" },
+        "welcomeVideoUrl": { "type": "string", "maxLength": 500 },
+        "officialEmail": { "type": "string", "maxLength": 200 },
+        "officialPhone": { "type": "string", "maxLength": 60 },
+        "mapEmbedUrl": { "type": "string", "maxLength": 600 },
+        "pushConfigured": { "type": "boolean" },
+        "newcomerJourney": { "type": "array" },
+        "updatedAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["isLiveNow", "pushConfigured", "updatedAt"]
+    }
+  },
+  "firestore": {
+    "/users/{userId}": {
+      "schema": { "$ref": "#/entities/UserProfile" },
+      "description": "User profile and private preferences."
+    },
+    "/users/{userId}/challengeProgress/{challengeId}": {
+      "schema": { "$ref": "#/entities/ChallengeProgress" },
+      "description": "Private prayer challenge completion progress for a user."
+    },
+    "/roles/{userId}": {
+      "schema": { "$ref": "#/entities/RoleAssignment" },
+      "description": "Authoritative RBAC role assignment per user."
+    },
+    "/prayerRequests/{requestId}": {
+      "schema": { "$ref": "#/entities/PrayerRequest" },
+      "description": "Submitted prayer requests with privacy and status tracking."
+    },
+    "/prayerAssignments/{assignmentId}": {
+      "schema": { "$ref": "#/entities/PrayerAssignment" },
+      "description": "Private pastoral assignment notes and status history."
+    },
+    "/prayerWall/{wallId}": {
+      "schema": { "$ref": "#/entities/PrayerWallEntry" },
+      "description": "Moderated public prayer wall entries."
+    },
+    "/prayerResponses/{responseId}": {
+      "schema": { "$ref": "#/entities/PrayerResponse" },
+      "description": "Praying indicators and encouragement messages on prayer wall entries."
+    },
+    "/testimonies/{testimonyId}": {
+      "schema": { "$ref": "#/entities/Testimony" },
+      "description": "Submitted testimonies pending or approved by ministry leadership."
+    },
+    "/visitors/{visitorId}": {
+      "schema": { "$ref": "#/entities/Visitor" },
+      "description": "First-time visitor registrations."
+    },
+    "/visitorFollowUps/{followUpId}": {
+      "schema": { "$ref": "#/entities/VisitorFollowUp" },
+      "description": "Confidential visitor follow-up logs."
+    },
+    "/services/{serviceId}": {
+      "schema": { "$ref": "#/entities/ServiceConfig" },
+      "description": "Wednesday and Sunday service schedule configurations."
+    },
+    "/events/{eventId}": {
+      "schema": { "$ref": "#/entities/Event" },
+      "description": "Ministry conventions, conferences, crusades and programmes."
+    },
+    "/eventRegistrations/{registrationId}": {
+      "schema": { "$ref": "#/entities/EventRegistration" },
+      "description": "Registrations for ministry events."
+    },
+    "/sermons/{sermonId}": {
+      "schema": { "$ref": "#/entities/Sermon" },
+      "description": "Sermons, video/audio teachings, Bible studies and publications."
+    },
+    "/devotionals/{devotionalId}": {
+      "schema": { "$ref": "#/entities/Devotional" },
+      "description": "Daily Scripture and devotionals published by authorized administrators."
+    },
+    "/prayerChallenges/{challengeId}": {
+      "schema": { "$ref": "#/entities/PrayerChallenge" },
+      "description": "Guided 7, 14, or 21-day prayer programmes."
+    },
+    "/announcements/{announcementId}": {
+      "schema": { "$ref": "#/entities/Announcement" },
+      "description": "Official church announcements."
+    },
+    "/notifications/{notificationId}": {
+      "schema": { "$ref": "#/entities/Notification" },
+      "description": "In-app notifications."
+    },
+    "/pastoralRequests/{requestId}": {
+      "schema": { "$ref": "#/entities/PastoralRequest" },
+      "description": "Confidential Contact a Pastor submissions."
+    },
+    "/departments/{departmentId}": {
+      "schema": { "$ref": "#/entities/Department" },
+      "description": "Ministry departments and volunteer areas."
+    },
+    "/appSettings/{settingId}": {
+      "schema": { "$ref": "#/entities/AppSetting" },
+      "description": "Ministry application settings."
+    }
+  }
+}

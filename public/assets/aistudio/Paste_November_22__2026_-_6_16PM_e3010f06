@@ -1,0 +1,1176 @@
+# PROJECT: BORNFREE GLOBAL MINISTRY — GLOBAL DIGITAL MINISTRY APPLICATION
+
+## 1. YOUR ROLE
+
+Act as a senior product designer, UI/UX specialist, full-stack application developer, database architect and mobile application engineer.
+
+You are responsible for designing and developing a beautiful, modern, lightweight, fully responsive digital ministry application for Bornfree Global Ministry, Lagos, Nigeria.
+
+This is a real ministry project intended for use by an existing congregation and a much wider international Christian community.
+
+Do not produce a generic church website or a conventional church application template.
+
+Think of this as a sophisticated Christian community and digital ministry platform that combines the best usability principles of modern community applications, lifestyle applications, media platforms and event discovery applications.
+
+The application must be visually distinctive, easy to navigate, spiritually engaging and technically maintainable.
+
+The founder of this project is not an experienced software developer. Therefore, use straightforward, maintainable technology and avoid unnecessary technical complexity.
+
+Build the application in a way that allows future development without having to rebuild everything from scratch.
+
+---
+
+# 2. OFFICIAL MINISTRY IDENTITY
+
+Ministry name:
+
+BORNFREE GLOBAL MINISTRY
+
+Official motto:
+
+"Preaching Christ in Totality"
+
+Mission statement:
+
+"Preaching the total gospel of Christ to the total man for the total freedom and making men live for God."
+
+Vision statement:
+
+"Reaching the unreached with the total gospel of Christ building the largest Christian community on earth today through media, crusade, outreach, evangelism and publications."
+
+Official physical address:
+
+No. 1, Bornfree Avenue, Off Saheed Hasan Street, Greenville Estate, Badore-Ajah, Lagos State, Nigeria.
+
+Official time zone:
+
+Africa/Lagos (West Africa Time, UTC+1).
+
+Official church logo:
+
+Use the uploaded Bornfree Global Ministry logo as the authoritative brand asset.
+
+Do not redraw, distort, recreate or replace the logo.
+
+Preserve its original proportions and visual appearance.
+
+The ministry logo contains a distinctive gold central emblem and circular gold, bronze and dark textured elements.
+
+Use the original uploaded image wherever the full ministry logo is required.
+
+Do not substitute generic crosses, church illustrations or unrelated religious symbols for the ministry logo.
+
+---
+
+# 3. DESIGN DIRECTION AND VISUAL REFERENCES
+
+Three images have been supplied.
+
+IMAGE 1: Official Bornfree Global Ministry logo.
+
+IMAGE 2: Mobile application design references showing Plum, Peloton, Bing, Badoo and Lifesum.
+
+IMAGE 3: Mobile application design references showing Klook, AllTrails, Luma and Drop.
+
+Study the uploaded application screenshots carefully.
+
+Extract useful design principles from them:
+
+From Plum:
+- Personalised dashboard.
+- Clearly separated information cards.
+- White space.
+- Simple navigation.
+- Well-organised information.
+
+From Peloton:
+- Engagement indicators.
+- Progress tracking.
+- Activity presentation.
+- Personalised content.
+
+From Bing:
+- Clean navigation.
+- Organised menu structures.
+- Simple icons.
+- Clear information hierarchy.
+
+From Lifesum:
+- Attractive visual presentation.
+- Soft backgrounds.
+- Elegant information cards.
+- Thoughtful typography.
+
+From Klook:
+- Quick-access categories.
+- Visual shortcuts.
+- Easy content discovery.
+
+From AllTrails:
+- Search and discovery.
+- Image-led content presentation.
+- Content categorisation.
+- Community-oriented navigation.
+
+From Luma:
+- Elegant event cards.
+- Event banners.
+- Date and time presentation.
+- Event details and registration experience.
+
+From Drop:
+- Personalised content sections.
+- Clearly organised dashboard cards.
+- Engagement-focused layouts.
+
+IMPORTANT:
+
+These images are design references only.
+
+Do not reproduce their logos, branding, exact layouts or proprietary visual designs.
+
+Create an original visual identity for Bornfree Global Ministry.
+
+## Brand colour palette
+
+Use the following colour system:
+
+Primary Gold: #E8B900
+
+Deep Gold: #B8860B
+
+Charcoal: #202020
+
+Warm White: #FAF9F6
+
+Soft Cream: #F4EFE3
+
+Bronze: #85521F
+
+White: #FFFFFF
+
+Gold should be used for important actions, highlights, selected navigation items and subtle decorative elements.
+
+Do not make the entire application yellow.
+
+Use predominantly warm white and clean white backgrounds, charcoal text, subtle gold accents and occasional bronze details.
+
+Avoid excessive gradients, neon colours, excessive shadows and generic AI-generated religious imagery.
+
+## Typography
+
+Use an elegant, highly readable typography system.
+
+Recommended:
+- Headings: Playfair Display or a similar elegant serif.
+- Body text: Inter.
+- Buttons and navigation: Inter.
+
+Maintain excellent readability on small Android screens.
+
+## Overall visual personality
+
+The application should feel:
+
+- Contemporary.
+- Welcoming.
+- Spiritually uplifting.
+- Elegant.
+- Human.
+- International.
+- Trustworthy.
+- Minimal but engaging.
+
+Avoid the appearance of a dated church website.
+
+---
+
+# 4. APPLICATION ARCHITECTURE
+
+Build a mobile-first Progressive Web Application.
+
+The application must work on:
+
+- Android smartphones.
+- iPhones.
+- Tablets.
+- Desktop browsers.
+
+The mobile experience is the highest priority.
+
+Use:
+
+- React.
+- Vite.
+- TypeScript.
+- Tailwind CSS.
+- Firebase Authentication.
+- Cloud Firestore.
+- Firebase Storage when necessary.
+
+Use React Router for navigation.
+
+Use Lucide icons or another consistent modern icon library.
+
+Keep the code modular and organised.
+
+Do not create one enormous component containing the entire application.
+
+Separate the application into reusable components, pages, layouts, services and data models.
+
+The architecture should allow the application to be maintained and extended by someone with limited programming experience.
+
+---
+
+# 5. APPLICATION NAVIGATION
+
+Create a fixed, elegant bottom navigation bar on mobile.
+
+Use five primary navigation items:
+
+1. HOME
+2. PRAYER
+3. DISCOVER
+4. EVENTS
+5. CONNECT
+
+The navigation must be intuitive.
+
+Use simple icons with clear labels.
+
+The selected navigation item should have a subtle gold visual indicator.
+
+On desktop, adapt the navigation appropriately without compromising the mobile-first design.
+
+---
+
+# 6. HOME SCREEN
+
+The home screen should be the digital entrance to Bornfree Global Ministry.
+
+It should be visually attractive, personalised and content-driven.
+
+Include the following sections:
+
+### A. Header
+
+Display:
+
+- Bornfree Global Ministry logo.
+- Personalised greeting where the user is signed in.
+- Notification icon.
+- Profile access.
+
+For visitors who are not signed in, display a welcoming introduction.
+
+### B. Welcome section
+
+Display:
+
+"Welcome to Bornfree Global Ministry"
+
+Include the motto:
+
+"Preaching Christ in Totality"
+
+Use a clean, welcoming layout.
+
+### C. Next Worship Experience
+
+Display the next scheduled church service prominently.
+
+The application must automatically determine whether Wednesday or Sunday is the next service.
+
+Official Wednesday service:
+
+6:00 PM – 8:00 PM Nigerian time.
+
+Official Sunday service:
+
+8:00 AM – 11:00 AM Nigerian time.
+
+Use Africa/Lagos as the authoritative time zone.
+
+Display the local equivalent time to international visitors when their time zone can be detected reliably.
+
+Always make it clear that the official schedule is Nigerian time.
+
+Include:
+
+- Service name.
+- Date.
+- Start time.
+- End time.
+- Venue.
+- View Programme.
+- Add to Calendar.
+- Get Directions.
+
+Include a WATCH LIVE button only when a valid livestream URL has been configured and the service is live.
+
+Do not invent a livestream URL.
+
+### D. Quick-access shortcuts
+
+Create attractive icon-based shortcuts for:
+
+- Submit a Prayer Request.
+- Watch Sermons.
+- Daily Word.
+- Upcoming Events.
+- First Time Here?
+- Contact a Pastor.
+
+### E. Featured ministry content
+
+Display:
+
+- Latest sermon.
+- Featured devotional.
+- Upcoming convention or conference.
+- Latest ministry announcement.
+
+Use attractive content cards.
+
+### F. Daily Scripture
+
+Create a dedicated daily scripture card.
+
+Allow an administrator to publish:
+
+- Bible verse.
+- Scripture reference.
+- Short reflection.
+- Prayer point.
+
+Do not invent biblical quotations and present them as official ministry devotionals.
+
+Display content supplied by authorised administrators.
+
+---
+
+# 7. WEDNESDAY MIDWEEK SERVICE
+
+Official title:
+
+WEDNESDAY MIDWEEK SERVICE
+
+Time:
+
+6:00 PM – 8:00 PM.
+
+Theme:
+
+THE WORD AND PRAYER.
+
+Description:
+
+An evening dedicated to sharing the Word of God and corporate prayers.
+
+Order of service:
+
+1. Praise and Worship.
+2. Word Ministration.
+3. Prayer Session.
+
+The Word may be ministered by:
+
+- Senior Pastor.
+- Resident Pastor.
+- Group Pastors heading cell groups within the ministry.
+
+The specific minister should be configurable by an administrator.
+
+Do not invent individual service durations.
+
+Create an attractive service details page showing the order of service.
+
+Include:
+
+- Service description.
+- Date and time.
+- Venue.
+- Minister, when announced.
+- Add to Calendar.
+- Get Directions.
+- Share Service Details.
+
+---
+
+# 8. SUNDAY WORSHIP SERVICE
+
+Official title:
+
+SUNDAY WORSHIP SERVICE.
+
+Time:
+
+8:00 AM – 11:00 AM.
+
+Order of service:
+
+1. Workers' Prayer.
+2. Sunday School.
+3. Praise and Worship.
+4. Choir Ministration.
+5. WORD ENCOUNTER.
+
+Sunday School:
+
+8:00 AM – 8:35 AM.
+
+Workers' Prayer takes place before the 8:00 AM Sunday School.
+
+Do not invent its starting time.
+
+WORD ENCOUNTER:
+
+The main Word ministration by the Senior Pastor.
+
+The service concludes at 11:00 AM.
+
+IMPORTANT:
+
+Use the exact expression "WORD ENCOUNTER".
+
+Never abbreviate it as WOR.
+
+Do not invent individual timings for activities whose durations have not been supplied.
+
+Create a beautiful Sunday service programme page with a clear sequence of activities.
+
+---
+
+# 9. PRAYER CENTRE
+
+This is one of the most important features of the application.
+
+Create a dedicated prayer environment.
+
+It must provide an easy way for people anywhere in the world to submit prayer requests and receive pastoral engagement.
+
+### A. Submit Prayer Request
+
+Create a simple submission form.
+
+Fields:
+
+- Name (optional).
+- Email (optional).
+- Phone number (optional).
+- Prayer category.
+- Prayer request description.
+- Preferred contact method.
+- Privacy preference.
+
+Prayer categories:
+
+- Family and Marriage.
+- Health and Healing.
+- Career and Employment.
+- Financial Needs.
+- Spiritual Growth.
+- Children and Relationships.
+- Thanksgiving.
+- Other.
+
+Privacy options:
+
+1. Private: Only authorised assigned pastoral personnel can access it.
+2. Prayer Team: Accessible to authorised prayer team members.
+3. Public Prayer Wall: Shared with the congregation only after explicit permission and moderation.
+
+Never make private prayer requests public automatically.
+
+### B. Prayer Request Tracking
+
+Allow signed-in users to see their own requests and their status.
+
+Suggested statuses:
+
+- Received.
+- Assigned.
+- Follow-up.
+- Closed.
+
+Provide a simple status history.
+
+Do not expose internal pastoral notes to the person submitting the request.
+
+### C. Pastor Assignment
+
+Authorised administrators must be able to:
+
+- View incoming requests.
+- Assign requests to designated pastors.
+- Accept responsibility.
+- Update status.
+- Record follow-up dates.
+- Record private pastoral notes.
+- Close completed requests.
+
+### D. Prayer Wall
+
+Create an optional moderated community prayer wall.
+
+Members can:
+
+- View approved prayer requests.
+- Select "I am praying".
+- Send encouragement.
+
+Do not expose private contact information.
+
+### E. Testimonies
+
+Allow members to submit testimonies.
+
+Include:
+
+- Name or anonymous submission.
+- Testimony category.
+- Description.
+- Optional photograph.
+- Permission to publish.
+
+All testimonies must be reviewed by an authorised administrator before publication.
+
+---
+
+# 10. FIRST-TIME VISITORS
+
+Create a dedicated section called:
+
+"NEW HERE? WE ARE GLAD YOU CAME."
+
+This section is important because the application serves people discovering the ministry internationally.
+
+Include:
+
+### A. Welcome to Bornfree
+
+Display:
+
+- Welcome message.
+- Ministry logo.
+- Motto.
+- Mission.
+- Vision.
+- Short introductory message.
+
+Provide an administrator-configurable welcome video.
+
+Do not invent or generate a video URL.
+
+### B. First-Time Visitor Registration
+
+Form fields:
+
+- Full name.
+- Email.
+- Phone number.
+- Country.
+- City.
+- How did you discover Bornfree?
+- Have you visited a Bornfree service before?
+- Would you like someone to contact you?
+
+Include appropriate consent for follow-up communication.
+
+### C. Visitor Follow-Up Dashboard
+
+Allow authorised follow-up personnel to:
+
+- View registered visitors.
+- Assign follow-up responsibility.
+- Record contact attempts.
+- Update follow-up status.
+- Schedule follow-up dates.
+- Record appropriate internal notes.
+
+Suggested statuses:
+
+- New Visitor.
+- Assigned.
+- Contacted.
+- Engaging.
+- Connected.
+- Completed.
+
+### D. Newcomer Engagement Journey
+
+Create an optional structured engagement journey.
+
+Suggested sequence:
+
+Day 1: Welcome to Bornfree Global Ministry.
+
+Day 2: Introduction to the ministry's mission and vision.
+
+Day 3: Introduction to the ministry's weekly services.
+
+Day 5: Share a selected sermon or devotional.
+
+Day 7: Personal follow-up by an assigned ministry representative.
+
+Day 14: Invitation to an appropriate ministry programme.
+
+This must be configurable.
+
+Do not send automated messages without appropriate consent.
+
+---
+
+# 11. DISCOVER SECTION
+
+Create a content discovery environment.
+
+Organise content into:
+
+- Latest Sermons.
+- Video Messages.
+- Audio Messages.
+- Bible Studies.
+- Daily Devotionals.
+- Publications.
+- Ministry Teachings.
+
+Each sermon should support:
+
+- Title.
+- Minister.
+- Date.
+- Description.
+- Thumbnail.
+- Video URL.
+- Audio URL.
+- Scripture references.
+- Topic categories.
+
+Use embedded video players where appropriate.
+
+Support YouTube links when provided by an administrator.
+
+Do not invent sermon titles, speakers or media URLs.
+
+Provide search and category filters.
+
+Make it easy to browse older teachings.
+
+---
+
+# 12. DAILY WORD AND SPIRITUAL GROWTH
+
+Create a section for daily spiritual engagement.
+
+It should support:
+
+- Scripture of the day.
+- Short devotional.
+- Reflection.
+- Prayer point.
+- Bible reading plan.
+- Special prayer programmes.
+
+Create an optional prayer challenge tracker.
+
+For example, an administrator can create a 7-day, 14-day or 21-day prayer programme.
+
+Members can:
+
+- View each day's prayer point.
+- Read the corresponding scripture.
+- Mark a session as completed.
+- Track their personal participation.
+
+Do not introduce public rankings, spiritual competitions or comparative spiritual scores.
+
+Keep this feature encouraging and private.
+
+---
+
+# 13. EVENTS AND MINISTRY PROGRAMMES
+
+Create an attractive event discovery section inspired by the supplied Luma application reference.
+
+Support:
+
+- Annual conventions.
+- Conferences.
+- Crusades.
+- Outreach programmes.
+- Evangelism.
+- Special prayer programmes.
+- Church celebrations.
+- Other ministry events.
+
+Every event should have:
+
+- Event name.
+- Banner image.
+- Theme.
+- Description.
+- Date.
+- Start time.
+- End time.
+- Venue.
+- Guest ministers.
+- Registration status.
+- Registration form.
+- Contact information.
+
+Allow administrators to create, edit and publish events.
+
+Allow users to register for events when registration is enabled.
+
+Include event reminders and Add to Calendar functionality.
+
+Do not invent event dates, themes, speakers or venues.
+
+---
+
+# 14. CONNECT SECTION
+
+Create a section where visitors and members can establish a relationship with the ministry.
+
+Include:
+
+- About Bornfree.
+- Mission and Vision.
+- Contact the Ministry.
+- Contact a Pastor.
+- First-Time Visitors.
+- Church Location.
+- Ministry Departments.
+- Volunteer Opportunities.
+- Privacy Policy.
+- Terms of Use.
+
+### Contact a Pastor
+
+Provide a form for:
+
+- General spiritual questions.
+- Pastoral counselling requests.
+- Family and marriage counselling requests.
+- Hospital or home visit requests.
+- Other pastoral assistance.
+
+Submissions should be accessible only to appropriately authorised pastoral personnel.
+
+Do not publish personal pastor telephone numbers unless supplied and approved by the ministry.
+
+### Location
+
+Display the official physical address:
+
+No. 1, Bornfree Avenue, Off Saheed Hasan Street, Greenville Estate, Badore-Ajah, Lagos State, Nigeria.
+
+Provide a map integration only after configuring a valid map service.
+
+---
+
+# 15. NOTIFICATION CENTRE
+
+Create an in-app notification centre.
+
+Support notifications for:
+
+- Upcoming services.
+- New announcements.
+- New sermons.
+- Prayer request updates.
+- Upcoming conventions.
+- Event registration reminders.
+- Daily devotionals.
+
+Allow users to configure notification preferences.
+
+Do not bombard users with unnecessary notifications.
+
+Where web push notifications require additional configuration, implement the appropriate architecture and clearly document the required setup.
+
+Do not display fake notifications or claim that push notifications are operational before they have been configured and tested.
+
+---
+
+# 16. ADMINISTRATIVE DASHBOARD
+
+Create a separate, protected administrative environment.
+
+This is for authorised pastors and ministry workers.
+
+It must be accessible from desktop and mobile browsers.
+
+The dashboard should have a clean, straightforward interface.
+
+Create the following administrative modules:
+
+1. Overview.
+2. Prayer Requests.
+3. First-Time Visitors.
+4. Events.
+5. Sermons and Media.
+6. Announcements.
+7. Daily Devotionals.
+8. Testimonies.
+9. Member Management.
+10. Pastoral Follow-Up.
+11. Notification Management.
+12. Settings.
+
+### Dashboard overview
+
+Show useful summary information:
+
+- New prayer requests.
+- Unassigned prayer requests.
+- Visitors awaiting follow-up.
+- Upcoming events.
+- Published sermons.
+- Recent announcements.
+
+Use simple statistics and clearly labelled cards.
+
+### Role-based permissions
+
+Create these initial roles:
+
+SUPER ADMIN:
+Full application administration.
+
+SENIOR PASTOR:
+Access to pastoral oversight and authorised ministry information.
+
+PASTOR:
+Access to assigned pastoral responsibilities.
+
+PRAYER COORDINATOR:
+Access to prayer request management.
+
+FOLLOW-UP TEAM:
+Access to visitor follow-up.
+
+MEDIA ADMINISTRATOR:
+Access to sermons, media and announcements.
+
+EVENT ADMINISTRATOR:
+Access to events and registration.
+
+MEMBER:
+Access to personal member features.
+
+GUEST:
+Public browsing only.
+
+Permissions must be enforced through Firebase security rules and not merely by hiding interface buttons.
+
+No user should be able to elevate their own permissions.
+
+Do not create hardcoded public administrator passwords.
+
+Provide a secure process for creating the first super administrator.
+
+---
+
+# 17. DATABASE DESIGN
+
+Use Cloud Firestore.
+
+Create a properly structured database with collections for:
+
+- users
+- roles
+- prayerRequests
+- prayerAssignments
+- prayerResponses
+- prayerWall
+- testimonies
+- visitors
+- visitorFollowUps
+- services
+- events
+- eventRegistrations
+- sermons
+- devotionals
+- announcements
+- notifications
+- pastoralRequests
+- departments
+- appSettings
+
+Create appropriate relationships and indexes.
+
+Important requirements:
+
+1. Each user should only access their own private records unless authorised otherwise.
+2. Prayer requests must have strict access controls.
+3. Pastoral notes must remain private.
+4. Public prayer wall entries must be moderated.
+5. Visitor contact information must be protected.
+6. Only authorised administrators can publish content.
+7. Role assignments must be protected.
+8. Sensitive operations must be validated server-side or through secure backend rules.
+
+Implement Firebase Authentication.
+
+Allow appropriate authentication methods, including email and password.
+
+Allow public browsing without registration.
+
+Do not require registration to view public sermons, service schedules, ministry information or public events.
+
+Require authentication for private prayer tracking and other personalised services.
+
+---
+
+# 18. PRIVACY AND DATA PROTECTION
+
+The application will operate in Nigeria and serve an international audience.
+
+Design with the Nigeria Data Protection Act 2023 and relevant applicable privacy principles in mind.
+
+Include:
+
+- Clear privacy policy.
+- Consent for personal data collection.
+- Appropriate access restrictions.
+- Secure authentication.
+- Private pastoral records.
+- User-controlled profile information.
+- Appropriate data retention and deletion procedures.
+- Protection against unauthorised access.
+
+Treat prayer requests and counselling information as sensitive.
+
+Do not expose private information through public pages, URLs or client-side database queries.
+
+Do not use real congregation data in demonstration records.
+
+Use clearly labelled fictional demonstration records during development.
+
+---
+
+# 19. TECHNICAL AND PERFORMANCE REQUIREMENTS
+
+The application must be:
+
+- Mobile-first.
+- Responsive.
+- Lightweight.
+- Fast-loading.
+- Accessible.
+- Easy to navigate.
+- Easy to maintain.
+
+Use optimised images.
+
+Lazy-load media where appropriate.
+
+Avoid unnecessarily large libraries.
+
+Provide meaningful loading states.
+
+Provide helpful empty states when there is no content.
+
+Provide clear error messages.
+
+Do not leave buttons that appear functional but do nothing.
+
+Do not create fake payment, registration, prayer submission or authentication functionality.
+
+All visible interactive features must either work or be clearly labelled as awaiting configuration.
+
+### Progressive Web App
+
+Configure:
+
+- Web app manifest.
+- Application icons.
+- Appropriate theme colours.
+- Installability.
+- Service worker.
+- Basic offline fallback.
+
+Do not cache private prayer records or sensitive personal information in an insecure manner.
+
+---
+
+# 20. DEPLOYMENT ARCHITECTURE
+
+The application is intended to be deployed on Netlify.
+
+Use a frontend architecture compatible with Netlify deployment.
+
+Prefer React + Vite + TypeScript.
+
+Use Firebase for authentication, Firestore and file storage.
+
+Do not place private API keys or service account credentials in frontend code.
+
+Use environment variables for configuration.
+
+Create a sample environment configuration file.
+
+Create:
+
+- package.json
+- vite.config.ts
+- netlify.toml
+- appropriate Firebase configuration files
+- README.md
+
+Configure the application for Netlify deployment.
+
+Use the appropriate SPA routing fallback so that refreshing a nested route does not produce a 404.
+
+Document the expected build command and publish directory.
+
+For a standard Vite application, use:
+
+Build command: npm run build
+
+Publish directory: dist
+
+Keep all deployment instructions in the README.
+
+The project must be exportable and maintainable outside Google AI Studio.
+
+Prepare the application for GitHub synchronisation.
+
+---
+
+# 21. IMPORTANT DEVELOPMENT RULES
+
+Follow these instructions carefully.
+
+1. Do not create a generic AI church template.
+
+2. Do not use random religious stock photographs indiscriminately.
+
+3. Do not invent ministry information.
+
+4. Do not invent pastor names, telephone numbers, event dates or service timings.
+
+5. Use the supplied Bornfree logo.
+
+6. Preserve the exact ministry motto, mission and vision.
+
+7. Use the exact expression WORD ENCOUNTER for the Sunday main Word ministration.
+
+8. Do not abbreviate WORD ENCOUNTER as WOR.
+
+9. Preserve the supplied Wednesday and Sunday service schedules.
+
+10. Do not invent the duration of individual service activities where it has not been provided.
+
+11. Do not create unnecessary navigation items.
+
+12. Do not require registration for public browsing.
+
+13. Protect private prayer and pastoral information.
+
+14. Make the application beautiful and functional on ordinary Android phones.
+
+15. Prioritise simplicity over excessive features.
+
+16. Do not implement fake functionality merely to make the application look complete.
+
+17. Keep the application modular and maintainable.
+
+18. Do not introduce paid third-party services without documenting the requirement and obtaining approval.
+
+19. Do not publish real user data or demonstration credentials.
+
+20. Make the application suitable for a ministry with a local congregation and an international digital audience.
+
+---
+
+# 22. IMPLEMENTATION APPROACH
+
+Do not attempt to generate an enormous application in one unverified step.
+
+Work in deliberate stages.
+
+STAGE 1 — DESIGN AND FRONTEND
+
+Build the complete visual design system.
+
+Create:
+
+- Home screen.
+- Prayer Centre.
+- Discover section.
+- Events section.
+- Connect section.
+- Service detail pages.
+- Responsive administrative dashboard.
+
+Use clearly labelled fictional sample content where actual ministry content has not yet been supplied.
+
+Make navigation and interactions functional.
+
+STAGE 2 — BACKEND
+
+Configure Firebase.
+
+Implement authentication, Firestore data models, role-based access and security rules.
+
+Connect the application forms and administrative dashboard to the database.
+
+STAGE 3 — TESTING
+
+Test:
+
+- Navigation.
+- Mobile responsiveness.
+- Forms.
+- Authentication.
+- Prayer submission.
+- Prayer assignment.
+- Visitor registration.
+- Visitor follow-up.
+- Event registration.
+- Content publishing.
+- Role permissions.
+- Database access restrictions.
+
+Fix errors before declaring features complete.
+
+STAGE 4 — DEPLOYMENT PREPARATION
+
+Prepare the application for GitHub and Netlify.
+
+Verify that the production build succeeds.
+
+Document all required environment variables and Firebase configuration steps.
+
+Do not claim the application is production-ready until the security rules, authentication, data handling and deployment have been tested.
+
+---
+
+# 23. FINAL DESIGN INSTRUCTION
+
+The finished application should feel like a premium, modern Christian community platform.
+
+It should be visually impressive without being complicated.
+
+A first-time visitor should immediately understand what Bornfree Global Ministry represents.
+
+An existing member should easily access sermons, prayer support, events and spiritual resources.
+
+A pastor should be able to manage prayer requests and visitor engagement without needing technical expertise.
+
+Someone living outside Nigeria should be able to discover the ministry and participate in its digital activities.
+
+The experience must be consistent, welcoming and spiritually meaningful.
+
+The central philosophy is:
+
+"BORNFREE GLOBAL MINISTRY — PREACHING CHRIST IN TOTALITY."
+
+Build an original digital experience around this identity.
+
+Begin with the visual design and complete frontend experience, then proceed through the implementation stages.
+
+Before finishing, provide a clear summary of what has been implemented, what requires Firebase configuration, what still needs testing and what is ready for deployment.

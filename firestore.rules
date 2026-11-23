@@ -1,0 +1,900 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Pillar 4.1: Global default-deny safety net
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    // -------------------------------------------------------------------------
+    // Core Primitives & RBAC Helpers
+    // -------------------------------------------------------------------------
+    function isValidId(id) {
+      return id is string && id.size() >= 1 && id.size() <= 128 && id.matches('^[a-zA-Z0-9_\\-]+$');
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isBootstrapOwner() {
+      return isSignedIn()
+        && request.auth.token.email == 'anthonybabatunde759@gmail.com'
+        && request.auth.token.email_verified == true;
+    }
+
+    function hasRoleDoc() {
+      return isSignedIn() && exists(/databases/$(database)/documents/roles/$(request.auth.uid));
+    }
+
+    function userRole() {
+      return hasRoleDoc()
+        ? get(/databases/$(database)/documents/roles/$(request.auth.uid)).data.role
+        : 'MEMBER';
+    }
+
+    function isSuperAdmin() {
+      return isBootstrapOwner() || (hasRoleDoc() && userRole() == 'SUPER_ADMIN');
+    }
+
+    function isSeniorPastor() {
+      return isSuperAdmin() || (hasRoleDoc() && userRole() == 'SENIOR_PASTOR');
+    }
+
+    function isPastor() {
+      return isSeniorPastor() || (hasRoleDoc() && userRole() == 'PASTOR');
+    }
+
+    function isPrayerStaff() {
+      return isPastor() || (hasRoleDoc() && userRole() == 'PRAYER_COORDINATOR');
+    }
+
+    function isFollowUpStaff() {
+      return isPastor() || (hasRoleDoc() && userRole() == 'FOLLOW_UP_TEAM');
+    }
+
+    function isMediaStaff() {
+      return isSeniorPastor() || (hasRoleDoc() && userRole() == 'MEDIA_ADMINISTRATOR');
+    }
+
+    function isEventStaff() {
+      return isSeniorPastor() || (hasRoleDoc() && userRole() == 'EVENT_ADMINISTRATOR');
+    }
+
+    function isAnyStaff() {
+      return isSuperAdmin() || (hasRoleDoc() && userRole() in [
+        'SUPER_ADMIN',
+        'SENIOR_PASTOR',
+        'PASTOR',
+        'PRAYER_COORDINATOR',
+        'FOLLOW_UP_TEAM',
+        'MEDIA_ADMINISTRATOR',
+        'EVENT_ADMINISTRATOR'
+      ]);
+    }
+
+    function isOptionalString(data, key, maxLen) {
+      return !(key in data) || (data[key] is string && data[key].size() <= maxLen);
+    }
+
+    // Health check document for startup testConnection()
+    match /test/connection {
+      allow get: if true;
+    }
+
+    // -------------------------------------------------------------------------
+    // 1. Users & Private Challenge Progress (PII Isolated)
+    // -------------------------------------------------------------------------
+    function isValidUserProfile(data, userId) {
+      return data.keys().hasAll(['uid', 'displayName', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly([
+          'uid', 'displayName', 'email', 'phone', 'country', 'city',
+          'consentGiven', 'notificationPrefs', 'createdAt', 'updatedAt'
+        ])
+        && data.uid is string && data.uid == userId && isValidId(data.uid)
+        && data.displayName is string && data.displayName.size() >= 1 && data.displayName.size() <= 100
+        && isOptionalString(data, 'email', 200)
+        && isOptionalString(data, 'phone', 40)
+        && isOptionalString(data, 'country', 100)
+        && isOptionalString(data, 'city', 100)
+        && (!('consentGiven' in data) || data.consentGiven is bool)
+        && (!('notificationPrefs' in data) || data.notificationPrefs is map)
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    match /users/{userId} {
+      allow get: if isValidId(userId) && isSignedIn() && (request.auth.uid == userId || isSeniorPastor());
+      allow list: if isSignedIn() && (resource.data.uid == request.auth.uid || isSeniorPastor());
+      allow create: if isValidId(userId) && isSignedIn() && request.auth.uid == userId
+        && isValidUserProfile(incoming(), userId)
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isValidId(userId) && isSignedIn() && (request.auth.uid == userId || isSuperAdmin())
+        && isValidUserProfile(incoming(), userId)
+        && incoming().uid == existing().uid
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'displayName', 'email', 'phone', 'country', 'city',
+          'consentGiven', 'notificationPrefs', 'updatedAt'
+        ]);
+      allow delete: if isValidId(userId) && isSignedIn() && (request.auth.uid == userId || isSuperAdmin());
+
+      match /challengeProgress/{challengeId} {
+        allow get: if isValidId(userId) && isValidId(challengeId) && isSignedIn() && request.auth.uid == userId;
+        allow list: if isSignedIn() && resource.data.userId == request.auth.uid;
+        allow create, update: if isValidId(userId) && isValidId(challengeId) && isSignedIn() && request.auth.uid == userId
+          && incoming().keys().hasAll(['userId', 'challengeId', 'completedDays', 'updatedAt'])
+          && incoming().keys().hasOnly(['userId', 'challengeId', 'completedDays', 'updatedAt'])
+          && incoming().userId == request.auth.uid
+          && incoming().challengeId == challengeId
+          && incoming().completedDays is list
+          && incoming().completedDays.size() <= 60
+          && (incoming().completedDays.size() == 0 || incoming().completedDays[0] is int)
+          && incoming().updatedAt == request.time;
+        allow delete: if isValidId(userId) && isValidId(challengeId) && isSignedIn() && request.auth.uid == userId;
+      }
+    }
+
+    // -------------------------------------------------------------------------
+    // 2. Roles (Strict RBAC — Users cannot elevate themselves)
+    // -------------------------------------------------------------------------
+    function isValidRoleDoc(data, userId) {
+      return data.keys().hasAll(['uid', 'role', 'assignedBy', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['uid', 'email', 'displayName', 'role', 'assignedBy', 'createdAt', 'updatedAt'])
+        && data.uid is string && data.uid == userId && isValidId(data.uid)
+        && data.role in [
+          'SUPER_ADMIN', 'SENIOR_PASTOR', 'PASTOR', 'PRAYER_COORDINATOR',
+          'FOLLOW_UP_TEAM', 'MEDIA_ADMINISTRATOR', 'EVENT_ADMINISTRATOR', 'MEMBER'
+        ]
+        && data.assignedBy is string && data.assignedBy.size() >= 1 && data.assignedBy.size() <= 128
+        && isOptionalString(data, 'email', 200)
+        && isOptionalString(data, 'displayName', 100)
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    match /roles/{userId} {
+      allow get: if isValidId(userId) && isSignedIn() && (request.auth.uid == userId || isSeniorPastor());
+      allow list: if isSeniorPastor();
+      allow create: if isValidId(userId) && isValidRoleDoc(incoming(), userId)
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time
+        && (isSuperAdmin() || (isBootstrapOwner() && request.auth.uid == userId && incoming().role == 'SUPER_ADMIN'));
+      allow update: if isValidId(userId) && isSuperAdmin()
+        && isValidRoleDoc(incoming(), userId)
+        && incoming().uid == existing().uid
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly(['email', 'displayName', 'role', 'assignedBy', 'updatedAt']);
+      allow delete: if isValidId(userId) && isSuperAdmin();
+    }
+
+    // -------------------------------------------------------------------------
+    // 3. Prayer Requests & 4. Prayer Assignments (Pastoral Notes Isolated)
+    // -------------------------------------------------------------------------
+    function isValidPrayerRequest(data) {
+      return data.keys().hasAll(['category', 'description', 'preferredContact', 'privacy', 'status', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly([
+          'userId', 'name', 'email', 'phone', 'category', 'description',
+          'preferredContact', 'privacy', 'status', 'assignedPastorId',
+          'assignedPastorName', 'followUpDate', 'createdAt', 'updatedAt'
+        ])
+        && (!('userId' in data) || data.userId == null || (data.userId is string && data.userId.size() <= 128))
+        && isOptionalString(data, 'name', 100)
+        && isOptionalString(data, 'email', 200)
+        && isOptionalString(data, 'phone', 40)
+        && data.category in [
+          'Family and Marriage', 'Health and Healing', 'Career and Employment',
+          'Financial Needs', 'Spiritual Growth', 'Children and Relationships',
+          'Thanksgiving', 'Other'
+        ]
+        && data.description is string && data.description.size() >= 5 && data.description.size() <= 3000
+        && data.preferredContact in ['Email', 'Phone', 'WhatsApp', 'In-App Only', 'No Contact Needed']
+        && data.privacy in ['private', 'prayer_team', 'public_wall']
+        && data.status in ['Received', 'Assigned', 'Follow-up', 'Closed']
+        && isOptionalString(data, 'assignedPastorId', 128)
+        && isOptionalString(data, 'assignedPastorName', 100)
+        && isOptionalString(data, 'followUpDate', 40)
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    match /prayerRequests/{requestId} {
+      allow get: if isValidId(requestId) && isSignedIn() && (
+        (existing().userId != null && existing().userId == request.auth.uid)
+        || isPrayerStaff()
+      );
+      allow list: if isSignedIn() && (
+        resource.data.userId == request.auth.uid
+        || isPrayerStaff()
+      );
+      allow create: if isValidId(requestId)
+        && isValidPrayerRequest(incoming())
+        && incoming().status == 'Received'
+        && !('assignedPastorId' in incoming())
+        && !('assignedPastorName' in incoming())
+        && (
+          (isSignedIn() && incoming().userId == request.auth.uid)
+          || (!isSignedIn() && (!('userId' in incoming()) || incoming().userId == null))
+        )
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isValidId(requestId) && isPrayerStaff()
+        && isValidPrayerRequest(incoming())
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'status', 'assignedPastorId', 'assignedPastorName', 'followUpDate', 'updatedAt'
+        ]);
+      allow delete: if isValidId(requestId) && isSuperAdmin();
+    }
+
+    function isValidPrayerAssignment(data) {
+      return data.keys().hasAll(['requestId', 'assignedByUid', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly([
+          'requestId', 'assignedToUid', 'assignedToName', 'assignedByUid',
+          'pastoralNotes', 'followUpDate', 'statusHistory', 'createdAt', 'updatedAt'
+        ])
+        && isValidId(data.requestId)
+        && isOptionalString(data, 'assignedToUid', 128)
+        && isOptionalString(data, 'assignedToName', 100)
+        && data.assignedByUid is string && data.assignedByUid.size() >= 1 && data.assignedByUid.size() <= 128
+        && isOptionalString(data, 'pastoralNotes', 4000)
+        && isOptionalString(data, 'followUpDate', 40)
+        && (!('statusHistory' in data) || (data.statusHistory is list && data.statusHistory.size() <= 50 && (data.statusHistory.size() == 0 || data.statusHistory[0] is map)))
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    match /prayerAssignments/{assignmentId} {
+      allow get: if isValidId(assignmentId) && isPrayerStaff();
+      allow list: if isPrayerStaff();
+      allow create: if isValidId(assignmentId) && isPrayerStaff()
+        && isValidPrayerAssignment(incoming())
+        && incoming().assignedByUid == request.auth.uid
+        && exists(/databases/$(database)/documents/prayerRequests/$(incoming().requestId))
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isValidId(assignmentId) && isPrayerStaff()
+        && isValidPrayerAssignment(incoming())
+        && incoming().requestId == existing().requestId
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'assignedToUid', 'assignedToName', 'pastoralNotes', 'followUpDate', 'statusHistory', 'updatedAt'
+        ]);
+      allow delete: if isValidId(assignmentId) && isSuperAdmin();
+    }
+
+    // -------------------------------------------------------------------------
+    // 5. Prayer Wall & 6. Prayer Responses (Moderated Public)
+    // -------------------------------------------------------------------------
+    function isValidPrayerWallEntry(data) {
+      return data.keys().hasAll(['displayName', 'category', 'requestSummary', 'prayingCount', 'isApproved', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly([
+          'sourceRequestId', 'displayName', 'category', 'requestSummary',
+          'prayingCount', 'isApproved', 'approvedBy', 'createdAt', 'updatedAt'
+        ])
+        && isOptionalString(data, 'sourceRequestId', 128)
+        && data.displayName is string && data.displayName.size() >= 1 && data.displayName.size() <= 80
+        && data.category is string && data.category.size() >= 1 && data.category.size() <= 80
+        && data.requestSummary is string && data.requestSummary.size() >= 5 && data.requestSummary.size() <= 1500
+        && data.prayingCount is int && data.prayingCount >= 0
+        && data.isApproved is bool
+        && isOptionalString(data, 'approvedBy', 128)
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    match /prayerWall/{wallId} {
+      allow get: if isValidId(wallId) && (existing().isApproved == true || isPrayerStaff());
+      allow list: if resource.data.isApproved == true || isPrayerStaff();
+      allow create: if isValidId(wallId) && isPrayerStaff()
+        && isValidPrayerWallEntry(incoming())
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isValidId(wallId) && isValidPrayerWallEntry(incoming())
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && (
+          (isPrayerStaff() && incoming().diff(existing()).affectedKeys().hasOnly([
+            'displayName', 'category', 'requestSummary', 'isApproved', 'approvedBy', 'updatedAt'
+          ]))
+          || (
+            isSignedIn()
+            && existing().isApproved == true
+            && incoming().prayingCount == existing().prayingCount + 1
+            && incoming().diff(existing()).affectedKeys().hasOnly(['prayingCount', 'updatedAt'])
+          )
+        );
+      allow delete: if isValidId(wallId) && isPrayerStaff();
+    }
+
+    function isValidPrayerResponse(data) {
+      return data.keys().hasAll(['wallId', 'userId', 'authorName', 'type', 'isApproved', 'createdAt'])
+        && data.keys().hasOnly(['wallId', 'userId', 'authorName', 'type', 'message', 'isApproved', 'createdAt'])
+        && isValidId(data.wallId)
+        && data.userId is string && data.userId.size() >= 1 && data.userId.size() <= 128
+        && data.authorName is string && data.authorName.size() >= 1 && data.authorName.size() <= 80
+        && data.type in ['praying', 'encouragement']
+        && isOptionalString(data, 'message', 500)
+        && data.isApproved is bool
+        && data.createdAt is timestamp;
+    }
+
+    match /prayerResponses/{responseId} {
+      allow get: if isValidId(responseId) && (existing().isApproved == true || isPrayerStaff());
+      allow list: if resource.data.isApproved == true || isPrayerStaff();
+      allow create: if isValidId(responseId) && isSignedIn()
+        && isValidPrayerResponse(incoming())
+        && incoming().userId == request.auth.uid
+        && incoming().isApproved == (incoming().type == 'praying')
+        && exists(/databases/$(database)/documents/prayerWall/$(incoming().wallId))
+        && incoming().createdAt == request.time;
+      allow update: if isValidId(responseId) && isPrayerStaff()
+        && isValidPrayerResponse(incoming())
+        && incoming().createdAt == existing().createdAt
+        && incoming().diff(existing()).affectedKeys().hasOnly(['isApproved', 'message']);
+      allow delete: if isValidId(responseId) && (isPrayerStaff() || (isSignedIn() && existing().userId == request.auth.uid));
+    }
+
+    // -------------------------------------------------------------------------
+    // 7. Testimonies (Moderated)
+    // -------------------------------------------------------------------------
+    function isValidTestimony(data) {
+      return data.keys().hasAll([
+        'authorName', 'isAnonymous', 'category', 'description',
+        'permissionToPublish', 'status', 'createdAt', 'updatedAt'
+      ])
+        && data.keys().hasOnly([
+          'userId', 'authorName', 'isAnonymous', 'category', 'description',
+          'photoUrl', 'permissionToPublish', 'status', 'reviewedBy', 'createdAt', 'updatedAt'
+        ])
+        && (!('userId' in data) || data.userId == null || (data.userId is string && data.userId.size() <= 128))
+        && data.authorName is string && data.authorName.size() >= 1 && data.authorName.size() <= 100
+        && data.isAnonymous is bool
+        && data.category is string && data.category.size() >= 1 && data.category.size() <= 80
+        && data.description is string && data.description.size() >= 10 && data.description.size() <= 4000
+        && isOptionalString(data, 'photoUrl', 500)
+        && data.permissionToPublish is bool
+        && data.status in ['pending', 'approved', 'rejected']
+        && isOptionalString(data, 'reviewedBy', 128)
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    match /testimonies/{testimonyId} {
+      allow get: if isValidId(testimonyId) && (
+        (existing().status == 'approved' && existing().permissionToPublish == true)
+        || (isSignedIn() && existing().userId == request.auth.uid)
+        || isPrayerStaff()
+      );
+      allow list: if (resource.data.status == 'approved' && resource.data.permissionToPublish == true)
+        || (isSignedIn() && resource.data.userId == request.auth.uid)
+        || isPrayerStaff();
+      allow create: if isValidId(testimonyId)
+        && isValidTestimony(incoming())
+        && incoming().status == 'pending'
+        && !('reviewedBy' in incoming())
+        && (
+          (isSignedIn() && incoming().userId == request.auth.uid)
+          || (!isSignedIn() && (!('userId' in incoming()) || incoming().userId == null))
+        )
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isValidId(testimonyId) && isPrayerStaff()
+        && isValidTestimony(incoming())
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'reviewedBy', 'updatedAt']);
+      allow delete: if isValidId(testimonyId) && isSuperAdmin();
+    }
+
+    // -------------------------------------------------------------------------
+    // 8. Visitors & 9. Visitor Follow-Ups (Protected PII)
+    // -------------------------------------------------------------------------
+    function isValidVisitor(data) {
+      return data.keys().hasAll([
+        'fullName', 'country', 'city', 'visitedBefore', 'wantsContact',
+        'consentGiven', 'status', 'createdAt', 'updatedAt'
+      ])
+        && data.keys().hasOnly([
+          'userId', 'fullName', 'email', 'phone', 'country', 'city',
+          'discoverySource', 'visitedBefore', 'wantsContact', 'consentGiven',
+          'status', 'assignedToUid', 'assignedToName', 'createdAt', 'updatedAt'
+        ])
+        && (!('userId' in data) || data.userId == null || (data.userId is string && data.userId.size() <= 128))
+        && data.fullName is string && data.fullName.size() >= 2 && data.fullName.size() <= 120
+        && isOptionalString(data, 'email', 200)
+        && isOptionalString(data, 'phone', 40)
+        && data.country is string && data.country.size() >= 2 && data.country.size() <= 100
+        && data.city is string && data.city.size() >= 2 && data.city.size() <= 100
+        && isOptionalString(data, 'discoverySource', 120)
+        && data.visitedBefore is bool
+        && data.wantsContact is bool
+        && data.consentGiven == true
+        && data.status in ['New Visitor', 'Assigned', 'Contacted', 'Engaging', 'Connected', 'Completed']
+        && isOptionalString(data, 'assignedToUid', 128)
+        && isOptionalString(data, 'assignedToName', 100)
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    match /visitors/{visitorId} {
+      allow get: if isValidId(visitorId) && isSignedIn() && (
+        (existing().userId != null && existing().userId == request.auth.uid)
+        || isFollowUpStaff()
+      );
+      allow list: if isSignedIn() && (
+        resource.data.userId == request.auth.uid
+        || isFollowUpStaff()
+      );
+      allow create: if isValidId(visitorId)
+        && isValidVisitor(incoming())
+        && incoming().status == 'New Visitor'
+        && !('assignedToUid' in incoming())
+        && (
+          (isSignedIn() && incoming().userId == request.auth.uid)
+          || (!isSignedIn() && (!('userId' in incoming()) || incoming().userId == null))
+        )
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isValidId(visitorId) && isFollowUpStaff()
+        && isValidVisitor(incoming())
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'assignedToUid', 'assignedToName', 'updatedAt']);
+      allow delete: if isValidId(visitorId) && isSuperAdmin();
+    }
+
+    function isValidVisitorFollowUp(data) {
+      return data.keys().hasAll(['visitorId', 'staffUid', 'staffName', 'outcome', 'createdAt'])
+        && data.keys().hasOnly([
+          'visitorId', 'staffUid', 'staffName', 'channel', 'outcome',
+          'nextFollowUpDate', 'journeyDay', 'internalNotes', 'createdAt'
+        ])
+        && isValidId(data.visitorId)
+        && data.staffUid is string && data.staffUid.size() >= 1 && data.staffUid.size() <= 128
+        && data.staffName is string && data.staffName.size() >= 1 && data.staffName.size() <= 100
+        && isOptionalString(data, 'channel', 40)
+        && data.outcome is string && data.outcome.size() >= 2 && data.outcome.size() <= 500
+        && isOptionalString(data, 'nextFollowUpDate', 40)
+        && (!('journeyDay' in data) || (data.journeyDay is int && data.journeyDay >= 1 && data.journeyDay <= 30))
+        && isOptionalString(data, 'internalNotes', 2000)
+        && data.createdAt is timestamp;
+    }
+
+    match /visitorFollowUps/{followUpId} {
+      allow get: if isValidId(followUpId) && isFollowUpStaff();
+      allow list: if isFollowUpStaff();
+      allow create: if isValidId(followUpId) && isFollowUpStaff()
+        && isValidVisitorFollowUp(incoming())
+        && incoming().staffUid == request.auth.uid
+        && exists(/databases/$(database)/documents/visitors/$(incoming().visitorId))
+        && incoming().createdAt == request.time;
+      allow update: if isValidId(followUpId) && isFollowUpStaff()
+        && isValidVisitorFollowUp(incoming())
+        && incoming().visitorId == existing().visitorId
+        && incoming().createdAt == existing().createdAt
+        && incoming().diff(existing()).affectedKeys().hasOnly(['outcome', 'nextFollowUpDate', 'journeyDay', 'internalNotes', 'channel']);
+      allow delete: if isValidId(followUpId) && isSuperAdmin();
+    }
+
+    // -------------------------------------------------------------------------
+    // 10. Services, 11. Events, 12. Event Registrations
+    // -------------------------------------------------------------------------
+    function isValidServiceConfig(data) {
+      return data.keys().hasAll(['type', 'title', 'venue', 'updatedAt'])
+        && data.keys().hasOnly(['type', 'title', 'theme', 'description', 'ministerName', 'ministerRole', 'venue', 'updatedAt'])
+        && data.type in ['wednesday', 'sunday']
+        && data.title is string && data.title.size() >= 2 && data.title.size() <= 120
+        && isOptionalString(data, 'theme', 120)
+        && isOptionalString(data, 'description', 1000)
+        && isOptionalString(data, 'ministerName', 120)
+        && isOptionalString(data, 'ministerRole', 80)
+        && data.venue is string && data.venue.size() >= 5 && data.venue.size() <= 300
+        && data.updatedAt is timestamp;
+    }
+
+    match /services/{serviceId} {
+      allow get, list: if true;
+      allow create, update: if isValidId(serviceId) && isMediaStaff()
+        && isValidServiceConfig(incoming())
+        && incoming().updatedAt == request.time;
+      allow delete: if isValidId(serviceId) && isSuperAdmin();
+    }
+
+    function isValidEvent(data) {
+      return data.keys().hasAll([
+        'title', 'category', 'description', 'date', 'startTime', 'venue',
+        'registrationEnabled', 'isPublished', 'createdBy', 'createdAt', 'updatedAt'
+      ])
+        && data.keys().hasOnly([
+          'title', 'category', 'theme', 'description', 'bannerUrl', 'date',
+          'startTime', 'endTime', 'venue', 'guestMinisters', 'registrationEnabled',
+          'contactInfo', 'isPublished', 'createdBy', 'createdAt', 'updatedAt'
+        ])
+        && data.title is string && data.title.size() >= 2 && data.title.size() <= 160
+        && data.category is string && data.category.size() >= 2 && data.category.size() <= 80
+        && isOptionalString(data, 'theme', 200)
+        && data.description is string && data.description.size() >= 5 && data.description.size() <= 5000
+        && isOptionalString(data, 'bannerUrl', 600)
+        && data.date is string && data.date.size() >= 4 && data.date.size() <= 40
+        && data.startTime is string && data.startTime.size() >= 2 && data.startTime.size() <= 40
+        && isOptionalString(data, 'endTime', 40)
+        && data.venue is string && data.venue.size() >= 2 && data.venue.size() <= 300
+        && isOptionalString(data, 'guestMinisters', 400)
+        && data.registrationEnabled is bool
+        && isOptionalString(data, 'contactInfo', 300)
+        && data.isPublished is bool
+        && data.createdBy is string && data.createdBy.size() >= 1 && data.createdBy.size() <= 128
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    match /events/{eventId} {
+      allow get: if isValidId(eventId) && (existing().isPublished == true || isEventStaff());
+      allow list: if resource.data.isPublished == true || isEventStaff();
+      allow create: if isValidId(eventId) && isEventStaff()
+        && isValidEvent(incoming())
+        && incoming().createdBy == request.auth.uid
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isValidId(eventId) && isEventStaff()
+        && isValidEvent(incoming())
+        && incoming().createdBy == existing().createdBy
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'title', 'category', 'theme', 'description', 'bannerUrl', 'date',
+          'startTime', 'endTime', 'venue', 'guestMinisters', 'registrationEnabled',
+          'contactInfo', 'isPublished', 'updatedAt'
+        ]);
+      allow delete: if isValidId(eventId) && isEventStaff();
+    }
+
+    function isValidEventRegistration(data) {
+      return data.keys().hasAll(['eventId', 'fullName', 'email', 'attendanceMode', 'consentGiven', 'createdAt'])
+        && data.keys().hasOnly([
+          'eventId', 'userId', 'fullName', 'email', 'phone',
+          'country', 'city', 'attendanceMode', 'consentGiven', 'createdAt'
+        ])
+        && isValidId(data.eventId)
+        && (!('userId' in data) || data.userId == null || (data.userId is string && data.userId.size() <= 128))
+        && data.fullName is string && data.fullName.size() >= 2 && data.fullName.size() <= 120
+        && data.email is string && data.email.size() >= 3 && data.email.size() <= 200
+        && isOptionalString(data, 'phone', 40)
+        && isOptionalString(data, 'country', 100)
+        && isOptionalString(data, 'city', 100)
+        && data.attendanceMode in ['In Person', 'Online']
+        && data.consentGiven == true
+        && data.createdAt is timestamp;
+    }
+
+    match /eventRegistrations/{registrationId} {
+      allow get: if isValidId(registrationId) && isSignedIn() && (
+        (existing().userId != null && existing().userId == request.auth.uid)
+        || isEventStaff()
+      );
+      allow list: if isSignedIn() && (
+        resource.data.userId == request.auth.uid
+        || isEventStaff()
+      );
+      allow create: if isValidId(registrationId)
+        && isValidEventRegistration(incoming())
+        && exists(/databases/$(database)/documents/events/$(incoming().eventId))
+        && get(/databases/$(database)/documents/events/$(incoming().eventId)).data.isPublished == true
+        && get(/databases/$(database)/documents/events/$(incoming().eventId)).data.registrationEnabled == true
+        && (
+          (isSignedIn() && incoming().userId == request.auth.uid)
+          || (!isSignedIn() && (!('userId' in incoming()) || incoming().userId == null))
+        )
+        && incoming().createdAt == request.time;
+      allow update: if false;
+      allow delete: if isValidId(registrationId) && (isEventStaff() || (isSignedIn() && existing().userId == request.auth.uid));
+    }
+
+    // -------------------------------------------------------------------------
+    // 13. Sermons, 14. Devotionals, Prayer Challenges, 15. Announcements
+    // -------------------------------------------------------------------------
+    function isValidSermon(data) {
+      return data.keys().hasAll(['title', 'contentType', 'minister', 'date', 'isPublished', 'createdBy', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly([
+          'title', 'contentType', 'minister', 'date', 'description',
+          'thumbnailUrl', 'videoUrl', 'audioUrl', 'scriptureReferences',
+          'topics', 'isPublished', 'createdBy', 'createdAt', 'updatedAt'
+        ])
+        && data.title is string && data.title.size() >= 2 && data.title.size() <= 180
+        && data.contentType in ['sermon', 'video', 'audio', 'bible_study', 'publication', 'teaching']
+        && data.minister is string && data.minister.size() >= 2 && data.minister.size() <= 120
+        && data.date is string && data.date.size() >= 4 && data.date.size() <= 40
+        && isOptionalString(data, 'description', 5000)
+        && isOptionalString(data, 'thumbnailUrl', 600)
+        && isOptionalString(data, 'videoUrl', 600)
+        && isOptionalString(data, 'audioUrl', 600)
+        && isOptionalString(data, 'scriptureReferences', 300)
+        && (!('topics' in data) || (data.topics is list && data.topics.size() <= 10 && (data.topics.size() == 0 || data.topics[0] is string)))
+        && data.isPublished is bool
+        && data.createdBy is string && data.createdBy.size() >= 1 && data.createdBy.size() <= 128
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    match /sermons/{sermonId} {
+      allow get: if isValidId(sermonId) && (existing().isPublished == true || isMediaStaff());
+      allow list: if resource.data.isPublished == true || isMediaStaff();
+      allow create: if isValidId(sermonId) && isMediaStaff()
+        && isValidSermon(incoming())
+        && incoming().createdBy == request.auth.uid
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isValidId(sermonId) && isMediaStaff()
+        && isValidSermon(incoming())
+        && incoming().createdBy == existing().createdBy
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'title', 'contentType', 'minister', 'date', 'description',
+          'thumbnailUrl', 'videoUrl', 'audioUrl', 'scriptureReferences',
+          'topics', 'isPublished', 'updatedAt'
+        ]);
+      allow delete: if isValidId(sermonId) && isMediaStaff();
+    }
+
+    function isValidDevotional(data) {
+      return data.keys().hasAll([
+        'title', 'bibleVerse', 'scriptureReference', 'reflection',
+        'prayerPoint', 'publishDate', 'isPublished', 'createdBy', 'createdAt', 'updatedAt'
+      ])
+        && data.keys().hasOnly([
+          'title', 'bibleVerse', 'scriptureReference', 'reflection',
+          'prayerPoint', 'publishDate', 'readingPlan', 'isPublished',
+          'createdBy', 'createdAt', 'updatedAt'
+        ])
+        && data.title is string && data.title.size() >= 2 && data.title.size() <= 160
+        && data.bibleVerse is string && data.bibleVerse.size() >= 5 && data.bibleVerse.size() <= 1500
+        && data.scriptureReference is string && data.scriptureReference.size() >= 2 && data.scriptureReference.size() <= 100
+        && data.reflection is string && data.reflection.size() >= 5 && data.reflection.size() <= 5000
+        && data.prayerPoint is string && data.prayerPoint.size() >= 5 && data.prayerPoint.size() <= 2000
+        && data.publishDate is string && data.publishDate.size() >= 4 && data.publishDate.size() <= 40
+        && isOptionalString(data, 'readingPlan', 200)
+        && data.isPublished is bool
+        && data.createdBy is string && data.createdBy.size() >= 1 && data.createdBy.size() <= 128
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    match /devotionals/{devotionalId} {
+      allow get: if isValidId(devotionalId) && (existing().isPublished == true || isMediaStaff() || isPrayerStaff());
+      allow list: if resource.data.isPublished == true || isMediaStaff() || isPrayerStaff();
+      allow create: if isValidId(devotionalId) && (isMediaStaff() || isPrayerStaff())
+        && isValidDevotional(incoming())
+        && incoming().createdBy == request.auth.uid
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isValidId(devotionalId) && (isMediaStaff() || isPrayerStaff())
+        && isValidDevotional(incoming())
+        && incoming().createdBy == existing().createdBy
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly([
+          'title', 'bibleVerse', 'scriptureReference', 'reflection',
+          'prayerPoint', 'publishDate', 'readingPlan', 'isPublished', 'updatedAt'
+        ]);
+      allow delete: if isValidId(devotionalId) && (isMediaStaff() || isSuperAdmin());
+    }
+
+    function isValidPrayerChallenge(data) {
+      return data.keys().hasAll(['title', 'durationDays', 'days', 'isPublished', 'createdBy', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['title', 'description', 'durationDays', 'days', 'isPublished', 'createdBy', 'createdAt', 'updatedAt'])
+        && data.title is string && data.title.size() >= 2 && data.title.size() <= 160
+        && isOptionalString(data, 'description', 2000)
+        && data.durationDays is int && data.durationDays >= 1 && data.durationDays <= 40
+        && data.days is list && data.days.size() >= 1 && data.days.size() <= 40 && data.days[0] is map
+        && data.isPublished is bool
+        && data.createdBy is string && data.createdBy.size() >= 1 && data.createdBy.size() <= 128
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    match /prayerChallenges/{challengeId} {
+      allow get: if isValidId(challengeId) && (existing().isPublished == true || isPrayerStaff() || isMediaStaff());
+      allow list: if resource.data.isPublished == true || isPrayerStaff() || isMediaStaff();
+      allow create: if isValidId(challengeId) && (isPrayerStaff() || isMediaStaff())
+        && isValidPrayerChallenge(incoming())
+        && incoming().createdBy == request.auth.uid
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isValidId(challengeId) && (isPrayerStaff() || isMediaStaff())
+        && isValidPrayerChallenge(incoming())
+        && incoming().createdBy == existing().createdBy
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly(['title', 'description', 'durationDays', 'days', 'isPublished', 'updatedAt']);
+      allow delete: if isValidId(challengeId) && isSuperAdmin();
+    }
+
+    function isValidAnnouncement(data) {
+      return data.keys().hasAll(['title', 'summary', 'category', 'isPinned', 'isPublished', 'createdBy', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly(['title', 'summary', 'body', 'category', 'isPinned', 'isPublished', 'createdBy', 'createdAt', 'updatedAt'])
+        && data.title is string && data.title.size() >= 2 && data.title.size() <= 160
+        && data.summary is string && data.summary.size() >= 4 && data.summary.size() <= 500
+        && isOptionalString(data, 'body', 4000)
+        && data.category is string && data.category.size() >= 2 && data.category.size() <= 60
+        && data.isPinned is bool
+        && data.isPublished is bool
+        && data.createdBy is string && data.createdBy.size() >= 1 && data.createdBy.size() <= 128
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    match /announcements/{announcementId} {
+      allow get: if isValidId(announcementId) && (existing().isPublished == true || isMediaStaff());
+      allow list: if resource.data.isPublished == true || isMediaStaff();
+      allow create: if isValidId(announcementId) && isMediaStaff()
+        && isValidAnnouncement(incoming())
+        && incoming().createdBy == request.auth.uid
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isValidId(announcementId) && isMediaStaff()
+        && isValidAnnouncement(incoming())
+        && incoming().createdBy == existing().createdBy
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly(['title', 'summary', 'body', 'category', 'isPinned', 'isPublished', 'updatedAt']);
+      allow delete: if isValidId(announcementId) && isMediaStaff();
+    }
+
+    // -------------------------------------------------------------------------
+    // 16. Notifications
+    // -------------------------------------------------------------------------
+    function isValidNotification(data) {
+      return data.keys().hasAll(['title', 'body', 'category', 'isPublished', 'createdBy', 'createdAt'])
+        && data.keys().hasOnly(['title', 'body', 'category', 'targetUid', 'linkPath', 'isPublished', 'createdBy', 'createdAt'])
+        && data.title is string && data.title.size() >= 2 && data.title.size() <= 160
+        && data.body is string && data.body.size() >= 2 && data.body.size() <= 1000
+        && data.category is string && data.category.size() >= 2 && data.category.size() <= 60
+        && (!('targetUid' in data) || data.targetUid == null || (data.targetUid is string && data.targetUid.size() <= 128))
+        && isOptionalString(data, 'linkPath', 200)
+        && data.isPublished is bool
+        && data.createdBy is string && data.createdBy.size() >= 1 && data.createdBy.size() <= 128
+        && data.createdAt is timestamp;
+    }
+
+    match /notifications/{notificationId} {
+      allow get: if isValidId(notificationId) && (
+        (existing().isPublished == true && (!('targetUid' in existing()) || existing().targetUid == null))
+        || (isSignedIn() && existing().targetUid == request.auth.uid)
+        || isAnyStaff()
+      );
+      allow list: if (resource.data.isPublished == true && resource.data.targetUid == null)
+        || (isSignedIn() && resource.data.targetUid == request.auth.uid)
+        || isAnyStaff();
+      allow create: if isValidId(notificationId) && isAnyStaff()
+        && isValidNotification(incoming())
+        && incoming().createdBy == request.auth.uid
+        && incoming().createdAt == request.time;
+      allow update: if isValidId(notificationId) && isAnyStaff()
+        && isValidNotification(incoming())
+        && incoming().createdBy == existing().createdBy
+        && incoming().createdAt == existing().createdAt
+        && incoming().diff(existing()).affectedKeys().hasOnly(['title', 'body', 'category', 'isPublished', 'linkPath']);
+      allow delete: if isValidId(notificationId) && isAnyStaff();
+    }
+
+    // -------------------------------------------------------------------------
+    // 17. Pastoral Requests (Strictly Pastoral Staff & Owner)
+    // -------------------------------------------------------------------------
+    function isValidPastoralRequest(data) {
+      return data.keys().hasAll(['fullName', 'requestType', 'message', 'preferredContact', 'consentGiven', 'status', 'createdAt', 'updatedAt'])
+        && data.keys().hasOnly([
+          'userId', 'fullName', 'email', 'phone', 'requestType', 'message',
+          'preferredContact', 'consentGiven', 'status', 'assignedPastorUid',
+          'assignedPastorName', 'createdAt', 'updatedAt'
+        ])
+        && (!('userId' in data) || data.userId == null || (data.userId is string && data.userId.size() <= 128))
+        && data.fullName is string && data.fullName.size() >= 2 && data.fullName.size() <= 120
+        && isOptionalString(data, 'email', 200)
+        && isOptionalString(data, 'phone', 40)
+        && data.requestType in [
+          'General spiritual question',
+          'Pastoral counselling request',
+          'Family and marriage counselling request',
+          'Hospital or home visit request',
+          'Other pastoral assistance'
+        ]
+        && data.message is string && data.message.size() >= 5 && data.message.size() <= 3000
+        && data.preferredContact is string && data.preferredContact.size() >= 2 && data.preferredContact.size() <= 40
+        && data.consentGiven == true
+        && data.status in ['Received', 'Assigned', 'In Progress', 'Closed']
+        && isOptionalString(data, 'assignedPastorUid', 128)
+        && isOptionalString(data, 'assignedPastorName', 100)
+        && data.createdAt is timestamp
+        && data.updatedAt is timestamp;
+    }
+
+    match /pastoralRequests/{requestId} {
+      allow get: if isValidId(requestId) && isSignedIn() && (
+        (existing().userId != null && existing().userId == request.auth.uid)
+        || isPastor()
+      );
+      allow list: if isSignedIn() && (
+        resource.data.userId == request.auth.uid
+        || isPastor()
+      );
+      allow create: if isValidId(requestId)
+        && isValidPastoralRequest(incoming())
+        && incoming().status == 'Received'
+        && !('assignedPastorUid' in incoming())
+        && (
+          (isSignedIn() && incoming().userId == request.auth.uid)
+          || (!isSignedIn() && (!('userId' in incoming()) || incoming().userId == null))
+        )
+        && incoming().createdAt == request.time
+        && incoming().updatedAt == request.time;
+      allow update: if isValidId(requestId) && isPastor()
+        && isValidPastoralRequest(incoming())
+        && incoming().createdAt == existing().createdAt
+        && incoming().updatedAt == request.time
+        && incoming().diff(existing()).affectedKeys().hasOnly(['status', 'assignedPastorUid', 'assignedPastorName', 'updatedAt']);
+      allow delete: if isValidId(requestId) && isSuperAdmin();
+    }
+
+    // -------------------------------------------------------------------------
+    // 18. Departments & 19. App Settings
+    // -------------------------------------------------------------------------
+    function isValidDepartment(data) {
+      return data.keys().hasAll(['name', 'description', 'isOpenForVolunteers', 'updatedAt'])
+        && data.keys().hasOnly(['name', 'description', 'meetingInfo', 'isOpenForVolunteers', 'updatedAt'])
+        && data.name is string && data.name.size() >= 2 && data.name.size() <= 120
+        && data.description is string && data.description.size() >= 5 && data.description.size() <= 1500
+        && isOptionalString(data, 'meetingInfo', 200)
+        && data.isOpenForVolunteers is bool
+        && data.updatedAt is timestamp;
+    }
+
+    match /departments/{departmentId} {
+      allow get, list: if true;
+      allow create, update: if isValidId(departmentId) && isSeniorPastor()
+        && isValidDepartment(incoming())
+        && incoming().updatedAt == request.time;
+      allow delete: if isValidId(departmentId) && isSuperAdmin();
+    }
+
+    function isValidAppSetting(data) {
+      return data.keys().hasAll(['isLiveNow', 'pushConfigured', 'updatedAt'])
+        && data.keys().hasOnly([
+          'livestreamUrl', 'isLiveNow', 'welcomeVideoUrl', 'officialEmail',
+          'officialPhone', 'mapEmbedUrl', 'pushConfigured', 'newcomerJourney', 'updatedAt'
+        ])
+        && isOptionalString(data, 'livestreamUrl', 500)
+        && data.isLiveNow is bool
+        && isOptionalString(data, 'welcomeVideoUrl', 500)
+        && isOptionalString(data, 'officialEmail', 200)
+        && isOptionalString(data, 'officialPhone', 60)
+        && isOptionalString(data, 'mapEmbedUrl', 600)
+        && data.pushConfigured is bool
+        && (!('newcomerJourney' in data) || (data.newcomerJourney is list && data.newcomerJourney.size() <= 20 && (data.newcomerJourney.size() == 0 || data.newcomerJourney[0] is map)))
+        && data.updatedAt is timestamp;
+    }
+
+    match /appSettings/{settingId} {
+      allow get, list: if true;
+      allow create, update: if isValidId(settingId) && (isSeniorPastor() || isMediaStaff())
+        && isValidAppSetting(incoming())
+        && incoming().updatedAt == request.time;
+      allow delete: if isValidId(settingId) && isSuperAdmin();
+    }
+  }
+}
