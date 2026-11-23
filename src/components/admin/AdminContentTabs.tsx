@@ -34,9 +34,9 @@ import {
 } from '@/src/constants/ministry';
 
 const INPUT_CLASS =
-  'rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-sm text-[#252B33] focus:border-[#26364A] focus:outline-none min-h-[42px]';
+  'rounded-[2px] border border-[#151515]/20 bg-white px-3 py-2 text-sm text-[#151515] focus:border-[#151515] focus:outline-none min-h-[42px]';
 const TEXTAREA_CLASS =
-  'w-full rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-sm text-[#252B33] focus:border-[#26364A] focus:outline-none';
+  'w-full rounded-[2px] border border-[#151515]/20 bg-white px-3 py-2 text-sm text-[#151515] focus:border-[#151515] focus:outline-none';
 
 export const AdminEventsTab: React.FC<{ events: MinistryEvent[] }> = ({ events }) => {
   const [title, setTitle] = useState('');
@@ -97,9 +97,9 @@ export const AdminEventsTab: React.FC<{ events: MinistryEvent[] }> = ({ events }
     <div className="space-y-6">
       <form
         onSubmit={handleSubmit}
-        className="rounded-xl bg-white border border-[#E5E7EB] p-5 space-y-3.5"
+        className="bg-white border border-[#151515]/12 p-5 space-y-3.5 rounded-[2px]"
       >
-        <h2 className="text-lg font-semibold text-[#26364A]">Create Ministry Event</h2>
+        <h2 className="font-display font-light text-2xl text-[#151515]">Create Ministry Event</h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <input
             type="text"
@@ -187,13 +187,13 @@ export const AdminEventsTab: React.FC<{ events: MinistryEvent[] }> = ({ events }
           placeholder="Official Event Contact Information (optional)"
           className={`w-full ${INPUT_CLASS}`}
         />
-        <div className="flex flex-wrap gap-4 text-xs text-[#252B33]">
+        <div className="flex flex-wrap gap-4 text-xs text-[#151515]">
           <label className="flex items-center gap-2">
             <input
               type="checkbox"
               checked={registrationEnabled}
               onChange={(e) => setRegistrationEnabled(e.target.checked)}
-              className="accent-[#26364A]"
+              className="accent-[#151515]"
             />
             <span>Enable Registration Form</span>
           </label>
@@ -202,7 +202,7 @@ export const AdminEventsTab: React.FC<{ events: MinistryEvent[] }> = ({ events }
               type="checkbox"
               checked={isPublished}
               onChange={(e) => setIsPublished(e.target.checked)}
-              className="accent-[#26364A]"
+              className="accent-[#151515]"
             />
             <span>Publish Immediately</span>
           </label>
@@ -210,30 +210,30 @@ export const AdminEventsTab: React.FC<{ events: MinistryEvent[] }> = ({ events }
         <button
           type="submit"
           disabled={saving}
-          className="rounded-lg bg-[#26364A] hover:bg-[#1D2939] px-5 py-2.5 text-xs font-semibold text-white transition-colors min-h-[42px]"
+          className="btn-press rounded-[2px] bg-[#151515] hover:bg-[#1F1D1C] px-5 py-2.5 text-xs font-semibold text-white min-h-[42px]"
         >
           {saving ? 'Saving...' : 'Save Event'}
         </button>
       </form>
 
       {regs && (
-        <div className="rounded-xl bg-[#F4F2EC] border border-[#E5E7EB] p-5 space-y-2">
+        <div className="bg-[#F0F0EE] border border-[#151515]/12 p-5 space-y-2 rounded-[2px]">
           <div className="flex items-center justify-between">
-            <h3 className="text-sm font-semibold text-[#26364A]">
+            <h3 className="text-sm font-semibold text-[#151515]">
               Registrations: {regs.eventTitle} ({regs.items.length})
             </h3>
             <button
               type="button"
               onClick={() => setRegs(null)}
-              className="text-xs font-semibold text-[#26364A] hover:text-[#1D2939] underline"
+              className="text-xs font-semibold text-[#151515] underline"
             >
               Close
             </button>
           </div>
           {regs.items.length === 0 ? (
-            <p className="text-xs text-[#68717D]">No registrations yet.</p>
+            <p className="text-xs text-[#6B6A67]">No registrations yet.</p>
           ) : (
-            <ul className="divide-y divide-[#E5E7EB] text-xs text-[#252B33]">
+            <ul className="divide-y divide-[#151515]/12 text-xs text-[#151515]">
               {regs.items.map((r) => (
                 <li key={r.id} className="py-2">
                   <strong>{r.fullName}</strong> · {r.email} · {r.attendanceMode}
@@ -249,11 +249,11 @@ export const AdminEventsTab: React.FC<{ events: MinistryEvent[] }> = ({ events }
         {events.map((ev) => (
           <div
             key={ev.id}
-            className="rounded-xl bg-white border border-[#E5E7EB] p-4 flex flex-wrap items-center justify-between gap-3"
+            className="bg-white border border-[#151515]/12 p-4 flex flex-wrap items-center justify-between gap-3 rounded-[2px]"
           >
             <div className="text-xs">
-              <p className="text-sm font-semibold text-[#252B33]">{ev.title}</p>
-              <p className="text-[#68717D]">
+              <p className="text-sm font-medium text-[#151515]">{ev.title}</p>
+              <p className="text-[#6B6A67]">
                 {ev.category} · {ev.date} · {ev.isPublished ? 'Published' : 'Draft'}
               </p>
             </div>
@@ -261,14 +261,14 @@ export const AdminEventsTab: React.FC<{ events: MinistryEvent[] }> = ({ events }
               <button
                 type="button"
                 onClick={() => handleViewRegistrations(ev)}
-                className="rounded-lg bg-[#F4F2EC] border border-[#E5E7EB] hover:bg-[#E5E7EB]/60 px-3 py-1.5 text-xs font-semibold text-[#26364A] transition-colors"
+                className="btn-press rounded-[2px] bg-[#F0F0EE] border border-[#151515]/15 hover:bg-[#E9DFC6] px-3 py-1.5 text-xs font-semibold text-[#151515]"
               >
                 Registrations
               </button>
               <button
                 type="button"
                 onClick={() => deleteEvent(ev.id)}
-                className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-50 transition-colors"
+                className="btn-press rounded-[2px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-50"
               >
                 Delete
               </button>
@@ -326,9 +326,11 @@ export const AdminSermonsTab: React.FC<{ sermons: Sermon[] }> = ({ sermons }) =>
     <div className="space-y-6">
       <form
         onSubmit={handleSubmit}
-        className="rounded-xl bg-white border border-[#E5E7EB] p-5 space-y-3.5"
+        className="bg-white border border-[#151515]/12 p-5 space-y-3.5 rounded-[2px]"
       >
-        <h2 className="text-lg font-semibold text-[#26364A]">Publish Sermon or Teaching</h2>
+        <h2 className="font-display font-light text-2xl text-[#151515]">
+          Publish Sermon or Teaching
+        </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <input
             type="text"
@@ -401,19 +403,19 @@ export const AdminSermonsTab: React.FC<{ sermons: Sermon[] }> = ({ sermons }) =>
           placeholder="Message Summary / Notes"
           className={TEXTAREA_CLASS}
         />
-        <label className="flex items-center gap-2 text-xs text-[#252B33]">
+        <label className="flex items-center gap-2 text-xs text-[#151515]">
           <input
             type="checkbox"
             checked={isPublished}
             onChange={(e) => setIsPublished(e.target.checked)}
-            className="accent-[#26364A]"
+            className="accent-[#151515]"
           />
           <span>Publish immediately</span>
         </label>
         <button
           type="submit"
           disabled={saving}
-          className="rounded-lg bg-[#26364A] hover:bg-[#1D2939] px-5 py-2.5 text-xs font-semibold text-white transition-colors min-h-[42px]"
+          className="btn-press rounded-[2px] bg-[#151515] hover:bg-[#1F1D1C] px-5 py-2.5 text-xs font-semibold text-white min-h-[42px]"
         >
           {saving ? 'Publishing...' : 'Save Teaching'}
         </button>
@@ -423,18 +425,18 @@ export const AdminSermonsTab: React.FC<{ sermons: Sermon[] }> = ({ sermons }) =>
         {sermons.map((s) => (
           <div
             key={s.id}
-            className="rounded-xl bg-white border border-[#E5E7EB] p-4 flex items-center justify-between gap-3"
+            className="bg-white border border-[#151515]/12 p-4 flex items-center justify-between gap-3 rounded-[2px]"
           >
             <div className="text-xs">
-              <p className="text-sm font-semibold text-[#252B33]">{s.title}</p>
-              <p className="text-[#68717D]">
+              <p className="text-sm font-medium text-[#151515]">{s.title}</p>
+              <p className="text-[#6B6A67]">
                 {s.minister} · {s.date} · {s.contentType}
               </p>
             </div>
             <button
               type="button"
               onClick={() => deleteSermon(s.id)}
-              className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-50 transition-colors"
+              className="btn-press rounded-[2px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-50"
             >
               Delete
             </button>
@@ -476,9 +478,11 @@ export const AdminAnnouncementsTab: React.FC<{ announcements: Announcement[] }> 
     <div className="space-y-6">
       <form
         onSubmit={handleSubmit}
-        className="rounded-xl bg-white border border-[#E5E7EB] p-5 space-y-3"
+        className="bg-white border border-[#151515]/12 p-5 space-y-3 rounded-[2px]"
       >
-        <h2 className="text-lg font-semibold text-[#26364A]">Publish Announcement</h2>
+        <h2 className="font-display font-light text-2xl text-[#151515]">
+          Publish Announcement
+        </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <input
             type="text"
@@ -505,19 +509,19 @@ export const AdminAnnouncementsTab: React.FC<{ announcements: Announcement[] }> 
           placeholder="Announcement details *"
           className={TEXTAREA_CLASS}
         />
-        <label className="flex items-center gap-2 text-xs text-[#252B33]">
+        <label className="flex items-center gap-2 text-xs text-[#151515]">
           <input
             type="checkbox"
             checked={isPinned}
             onChange={(e) => setIsPinned(e.target.checked)}
-            className="accent-[#26364A]"
+            className="accent-[#151515]"
           />
           <span>Pin to top of announcements</span>
         </label>
         <button
           type="submit"
           disabled={saving}
-          className="rounded-lg bg-[#26364A] hover:bg-[#1D2939] px-5 py-2.5 text-xs font-semibold text-white transition-colors min-h-[42px]"
+          className="btn-press rounded-[2px] bg-[#151515] hover:bg-[#1F1D1C] px-5 py-2.5 text-xs font-semibold text-white min-h-[42px]"
         >
           {saving ? 'Publishing...' : 'Publish Announcement'}
         </button>
@@ -527,16 +531,16 @@ export const AdminAnnouncementsTab: React.FC<{ announcements: Announcement[] }> 
         {announcements.map((a) => (
           <div
             key={a.id}
-            className="rounded-xl bg-white border border-[#E5E7EB] p-4 flex items-center justify-between gap-3"
+            className="bg-white border border-[#151515]/12 p-4 flex items-center justify-between gap-3 rounded-[2px]"
           >
             <div className="text-xs">
-              <p className="text-sm font-semibold text-[#252B33]">{a.title}</p>
-              <p className="text-[#68717D]">{a.summary}</p>
+              <p className="text-sm font-medium text-[#151515]">{a.title}</p>
+              <p className="text-[#6B6A67]">{a.summary}</p>
             </div>
             <button
               type="button"
               onClick={() => deleteAnnouncement(a.id)}
-              className="rounded-lg border border-red-200 px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-50 transition-colors shrink-0"
+              className="btn-press rounded-[2px] border border-red-300 px-3 py-1.5 text-xs font-semibold text-red-700 hover:bg-red-50 shrink-0"
             >
               Delete
             </button>
@@ -611,9 +615,11 @@ export const AdminDevotionalsTab: React.FC<{ devotionals: Devotional[] }> = ({ d
     <div className="space-y-6">
       <form
         onSubmit={handleSubmit}
-        className="rounded-xl bg-white border border-[#E5E7EB] p-5 space-y-3"
+        className="bg-white border border-[#151515]/12 p-5 space-y-3 rounded-[2px]"
       >
-        <h2 className="text-lg font-semibold text-[#26364A]">Publish Daily Devotional</h2>
+        <h2 className="font-display font-light text-2xl text-[#151515]">
+          Publish Daily Devotional
+        </h2>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <input
             type="text"
@@ -673,7 +679,7 @@ export const AdminDevotionalsTab: React.FC<{ devotionals: Devotional[] }> = ({ d
         <button
           type="submit"
           disabled={saving}
-          className="rounded-lg bg-[#26364A] hover:bg-[#1D2939] px-5 py-2.5 text-xs font-semibold text-white transition-colors min-h-[42px]"
+          className="btn-press rounded-[2px] bg-[#151515] hover:bg-[#1F1D1C] px-5 py-2.5 text-xs font-semibold text-white min-h-[42px]"
         >
           {saving ? 'Publishing...' : 'Publish Daily Devotional'}
         </button>
@@ -681,9 +687,9 @@ export const AdminDevotionalsTab: React.FC<{ devotionals: Devotional[] }> = ({ d
 
       <form
         onSubmit={handleCreateChallenge}
-        className="rounded-xl bg-white border border-[#E5E7EB] p-5 space-y-3"
+        className="bg-white border border-[#151515]/12 p-5 space-y-3 rounded-[2px]"
       >
-        <h3 className="text-base font-semibold text-[#26364A]">
+        <h3 className="font-display font-normal text-xl text-[#151515]">
           Create Special Prayer Programme (7 / 14 / 21 Days)
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
@@ -723,7 +729,7 @@ export const AdminDevotionalsTab: React.FC<{ devotionals: Devotional[] }> = ({ d
         />
         <button
           type="submit"
-          className="rounded-lg bg-[#B99A55] hover:bg-[#c5a764] px-5 py-2 text-xs font-semibold text-[#1D2939] transition-colors min-h-[40px]"
+          className="btn-press rounded-[2px] bg-[#FCDC00] hover:bg-[#ffe32e] px-5 py-2 text-xs font-semibold text-[#151515] min-h-[40px]"
         >
           Publish Prayer Programme
         </button>
@@ -731,8 +737,11 @@ export const AdminDevotionalsTab: React.FC<{ devotionals: Devotional[] }> = ({ d
 
       <div className="space-y-2">
         {devotionals.map((d) => (
-          <div key={d.id} className="rounded-lg bg-white border border-[#E5E7EB] p-3.5 text-xs text-[#68717D]">
-            <strong className="text-[#252B33]">{d.title}</strong> · {d.scriptureReference} ·{' '}
+          <div
+            key={d.id}
+            className="bg-white border border-[#151515]/12 p-3.5 text-xs text-[#6B6A67] rounded-[2px]"
+          >
+            <strong className="text-[#151515]">{d.title}</strong> · {d.scriptureReference} ·{' '}
             {d.publishDate}
           </div>
         ))}
@@ -760,11 +769,13 @@ export const AdminNotificationsTab: React.FC = () => {
   return (
     <form
       onSubmit={handleSubmit}
-      className="rounded-xl bg-white border border-[#E5E7EB] p-5 space-y-3"
+      className="bg-white border border-[#151515]/12 p-5 space-y-3 rounded-[2px]"
     >
-      <h2 className="text-lg font-semibold text-[#26364A]">Send In-App Notification</h2>
+      <h2 className="font-display font-light text-2xl text-[#151515]">
+        Send In-App Notification
+      </h2>
       {sent && (
-        <div className="rounded-lg bg-[#F4F2EC] border border-[#E5E7EB] p-3 text-xs font-medium text-[#26364A]">
+        <div className="rounded-[2px] bg-[#F0F0EE] border border-[#151515]/15 p-3 text-xs font-medium text-[#151515]">
           Notification published to the in-app Notification Centre.
         </div>
       )}
@@ -806,7 +817,7 @@ export const AdminNotificationsTab: React.FC = () => {
       />
       <button
         type="submit"
-        className="rounded-lg bg-[#26364A] hover:bg-[#1D2939] px-5 py-2.5 text-xs font-semibold text-white transition-colors min-h-[42px]"
+        className="btn-press rounded-[2px] bg-[#151515] hover:bg-[#1F1D1C] px-5 py-2.5 text-xs font-semibold text-white min-h-[42px]"
       >
         Publish Notification
       </button>
@@ -895,16 +906,16 @@ export const AdminSettingsTab: React.FC<{
   return (
     <div className="space-y-6">
       {notice && (
-        <div className="rounded-lg bg-white border border-[#E5E7EB] p-3 text-xs font-medium text-[#26364A]">
+        <div className="rounded-[2px] bg-white border border-[#151515]/20 p-3 text-xs font-medium text-[#151515]">
           {notice}
         </div>
       )}
 
       <form
         onSubmit={handleSaveSettings}
-        className="rounded-xl bg-white border border-[#E5E7EB] p-5 space-y-3"
+        className="bg-white border border-[#151515]/12 p-5 space-y-3 rounded-[2px]"
       >
-        <h2 className="text-lg font-semibold text-[#26364A]">
+        <h2 className="font-display font-light text-2xl text-[#151515]">
           Livestream, Media & Official Contact Settings
         </h2>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -937,18 +948,20 @@ export const AdminSettingsTab: React.FC<{
             className={INPUT_CLASS}
           />
         </div>
-        <label className="flex items-center gap-2 text-xs font-medium text-[#252B33]">
+        <label className="flex items-center gap-2 text-xs font-medium text-[#151515]">
           <input
             type="checkbox"
             checked={isLiveNow}
             onChange={(e) => setIsLiveNow(e.target.checked)}
-            className="accent-[#26364A]"
+            className="accent-[#151515]"
           />
-          <span>Service is Currently Live (Displays WATCH LIVE button on Home when Livestream URL is valid)</span>
+          <span>
+            Service is Currently Live (Displays WATCH LIVE button on Home when Livestream URL is valid)
+          </span>
         </label>
         <button
           type="submit"
-          className="rounded-lg bg-[#26364A] hover:bg-[#1D2939] px-5 py-2.5 text-xs font-semibold text-white transition-colors min-h-[42px]"
+          className="btn-press rounded-[2px] bg-[#151515] hover:bg-[#1F1D1C] px-5 py-2.5 text-xs font-semibold text-white min-h-[42px]"
         >
           Save Settings
         </button>
@@ -956,9 +969,9 @@ export const AdminSettingsTab: React.FC<{
 
       <form
         onSubmit={handleSaveWednesdayMinister}
-        className="rounded-xl bg-white border border-[#E5E7EB] p-5 space-y-3"
+        className="bg-white border border-[#151515]/12 p-5 space-y-3 rounded-[2px]"
       >
-        <h3 className="text-base font-semibold text-[#26364A]">
+        <h3 className="font-display font-normal text-xl text-[#151515]">
           Wednesday Midweek Service Minister
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -981,7 +994,7 @@ export const AdminSettingsTab: React.FC<{
         </div>
         <button
           type="submit"
-          className="rounded-lg bg-[#B99A55] hover:bg-[#c5a764] px-4 py-2 text-xs font-semibold text-[#1D2939] transition-colors min-h-[40px]"
+          className="btn-press rounded-[2px] bg-[#FCDC00] hover:bg-[#ffe32e] px-4 py-2 text-xs font-semibold text-[#151515] min-h-[40px]"
         >
           Update Wednesday Minister
         </button>
@@ -991,15 +1004,17 @@ export const AdminSettingsTab: React.FC<{
         <>
           <form
             onSubmit={handleAddDept}
-            className="rounded-xl bg-white border border-[#E5E7EB] p-5 space-y-3"
+            className="bg-white border border-[#151515]/12 p-5 space-y-3 rounded-[2px]"
           >
-            <h3 className="text-base font-semibold text-[#26364A]">Ministry Departments</h3>
+            <h3 className="font-display font-normal text-xl text-[#151515]">
+              Ministry Departments
+            </h3>
             {departments.length > 0 && (
-              <ul className="divide-y divide-[#E5E7EB] text-xs">
+              <ul className="divide-y divide-[#151515]/12 text-xs">
                 {departments.map((d) => (
                   <li key={d.id} className="py-2">
-                    <span className="font-semibold text-[#252B33]">{d.name}</span>
-                    <p className="text-[#68717D] mt-0.5">{d.description}</p>
+                    <span className="font-semibold text-[#151515]">{d.name}</span>
+                    <p className="text-[#6B6A67] mt-0.5">{d.description}</p>
                   </li>
                 ))}
               </ul>
@@ -1022,23 +1037,23 @@ export const AdminSettingsTab: React.FC<{
             />
             <button
               type="submit"
-              className="rounded-lg bg-[#26364A] hover:bg-[#1D2939] px-4 py-2 text-xs font-semibold text-white transition-colors min-h-[40px]"
+              className="btn-press rounded-[2px] bg-[#151515] hover:bg-[#1F1D1C] px-4 py-2 text-xs font-semibold text-white min-h-[40px]"
             >
               Add Department
             </button>
           </form>
 
-          <div className="rounded-xl bg-white border border-[#E5E7EB] p-5 space-y-2">
-            <h3 className="text-sm font-semibold text-[#26364A]">
+          <div className="bg-white border border-[#151515]/12 p-5 space-y-2 rounded-[2px]">
+            <h3 className="text-sm font-semibold text-[#151515]">
               Demonstration Preview Data (Optional)
             </h3>
-            <p className="text-xs text-[#68717D]">
+            <p className="text-xs text-[#6B6A67]">
               Load clearly labelled fictional sample devotionals, announcements, and departments to preview populated screens. You can delete them anytime.
             </p>
             <button
               type="button"
               onClick={handleSeedDemo}
-              className="rounded-lg bg-[#F4F2EC] border border-[#E5E7EB] hover:bg-[#E5E7EB]/60 px-4 py-2 text-xs font-semibold text-[#26364A] transition-colors"
+              className="btn-press rounded-[2px] bg-[#F0F0EE] border border-[#151515]/15 hover:bg-[#E9DFC6] px-4 py-2 text-xs font-semibold text-[#151515]"
             >
               Load Fictional Sample Content (Demo)
             </button>

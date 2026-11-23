@@ -90,11 +90,11 @@ export const AuthModal: React.FC<AuthModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1D2939]/70 backdrop-blur-xs p-4 overflow-y-auto">
-      <div className="w-full max-w-md rounded-2xl bg-white border border-[#E5E7EB] overflow-hidden shadow-lg my-8">
-        <div className="bg-[#26364A] text-white px-6 py-4 flex items-center justify-between gap-3">
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#151515]/75 p-4 overflow-y-auto">
+      <div className="w-full max-w-md rounded-[2px] bg-[#F0F0EE] border border-[#151515]/20 overflow-hidden my-8">
+        <div className="bg-[#151515] text-white px-6 py-4 flex items-center justify-between gap-3">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-full bg-white p-0.5 border border-[#E5E7EB] flex items-center justify-center shrink-0">
+            <div className="w-10 h-10 bg-[#151515] p-1 flex items-center justify-center shrink-0">
               <img
                 src={MINISTRY_IDENTITY.logoUrl}
                 alt="Bornfree Global Ministry Logo"
@@ -102,34 +102,36 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               />
             </div>
             <div>
-              <h2 className="text-lg font-semibold text-white">
+              <h2 className="text-lg font-light text-white">
                 {mode === 'signin' ? 'Sign In' : 'Create Member Account'}
               </h2>
-              <p className="text-xs text-[#E5E7EB]/80">Bornfree Global Ministry</p>
+              <p className="text-xs italic font-semibold text-[#A3A19D]">
+                {MINISTRY_IDENTITY.shortName}
+              </p>
             </div>
           </div>
           <button
             type="button"
             onClick={onClose}
             aria-label="Close authentication modal"
-            className="p-2 text-[#E5E7EB]/80 hover:text-white min-h-[44px] min-w-[44px] flex items-center justify-center"
+            className="btn-press w-10 h-10 rounded-[2px] bg-white text-[#151515] flex items-center justify-center"
           >
-            <X className="w-5 h-5" />
+            <X className="w-4 h-4" strokeWidth={1.5} />
           </button>
         </div>
 
-        <div className="p-6">
-          <div className="flex gap-1 p-1 rounded-lg bg-[#E5E7EB]/70">
+        <div className="p-6 bg-white">
+          <div className="grid grid-cols-2 border border-[#151515]/15 rounded-[2px] bg-[#F0F0EE] p-1 gap-1">
             <button
               type="button"
               onClick={() => {
                 setMode('signin');
                 setError(null);
               }}
-              className={`flex-1 py-2 text-xs font-semibold rounded-md transition-colors min-h-[40px] ${
+              className={`py-2 text-xs font-medium rounded-[2px] transition-colors min-h-[40px] ${
                 mode === 'signin'
-                  ? 'bg-[#26364A] text-white'
-                  : 'text-[#68717D] hover:text-[#252B33]'
+                  ? 'bg-[#151515] text-white'
+                  : 'text-[#6B6A67] hover:text-[#151515]'
               }`}
             >
               Sign In
@@ -140,10 +142,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                 setMode('register');
                 setError(null);
               }}
-              className={`flex-1 py-2 text-xs font-semibold rounded-md transition-colors min-h-[40px] ${
+              className={`py-2 text-xs font-medium rounded-[2px] transition-colors min-h-[40px] ${
                 mode === 'register'
-                  ? 'bg-[#26364A] text-white'
-                  : 'text-[#68717D] hover:text-[#252B33]'
+                  ? 'bg-[#151515] text-white'
+                  : 'text-[#6B6A67] hover:text-[#151515]'
               }`}
             >
               Create Account
@@ -151,8 +153,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
           </div>
 
           {error && (
-            <div className="mt-4 flex items-start gap-2.5 rounded-lg bg-red-50 border border-red-200 p-3 text-xs text-red-800">
-              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" />
+            <div className="mt-4 flex items-start gap-2.5 rounded-[2px] bg-red-50 border border-red-300 p-3 text-xs text-red-800">
+              <AlertCircle className="w-4 h-4 shrink-0 mt-0.5" strokeWidth={1.5} />
               <span>{error}</span>
             </div>
           )}
@@ -162,7 +164,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               type="button"
               disabled={busy}
               onClick={handleGoogle}
-              className="w-full flex items-center justify-center gap-2.5 rounded-lg border border-[#E5E7EB] bg-white py-2.5 px-4 text-sm font-semibold text-[#252B33] hover:bg-[#F4F2EC] transition-colors min-h-[44px] disabled:opacity-60"
+              className="btn-press w-full flex items-center justify-center gap-2.5 rounded-[2px] border border-[#151515]/20 bg-white py-2.5 px-4 text-sm font-medium text-[#151515] hover:bg-[#F0F0EE] min-h-[44px] disabled:opacity-60"
             >
               <svg className="w-4 h-4" viewBox="0 0 24 24" aria-hidden="true">
                 <path
@@ -186,49 +188,49 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             </button>
           </div>
 
-          <div className="my-4 flex items-center gap-3 text-xs text-[#68717D]">
-            <div className="h-px flex-1 bg-[#E5E7EB]" />
+          <div className="my-4 flex items-center gap-3 text-xs text-[#6B6A67]">
+            <div className="h-px flex-1 bg-[#151515]/12" />
             <span>or with email</span>
-            <div className="h-px flex-1 bg-[#E5E7EB]" />
+            <div className="h-px flex-1 bg-[#151515]/12" />
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-3.5">
             {mode === 'register' && (
               <div>
-                <label className="block text-xs font-medium text-[#252B33] mb-1">Full Name</label>
+                <label className="block text-xs font-medium text-[#151515] mb-1">Full Name</label>
                 <div className="relative">
-                  <User className="w-4 h-4 text-[#68717D] absolute left-3 top-1/2 -translate-y-1/2" />
+                  <User className="w-4 h-4 text-[#6B6A67] absolute left-3 top-1/2 -translate-y-1/2" strokeWidth={1.5} />
                   <input
                     type="text"
                     required
                     value={displayName}
                     onChange={(e) => setDisplayName(e.target.value)}
                     placeholder="Your full name"
-                    className="w-full rounded-lg border border-[#E5E7EB] bg-white pl-9 pr-3 py-2.5 text-sm text-[#252B33] focus:outline-none focus:border-[#26364A] min-h-[44px]"
+                    className="w-full rounded-[2px] border border-[#151515]/20 bg-white pl-9 pr-3 py-2.5 text-sm text-[#151515] focus:outline-none focus:border-[#151515] min-h-[44px]"
                   />
                 </div>
               </div>
             )}
 
             <div>
-              <label className="block text-xs font-medium text-[#252B33] mb-1">Email Address</label>
+              <label className="block text-xs font-medium text-[#151515] mb-1">Email Address</label>
               <div className="relative">
-                <Mail className="w-4 h-4 text-[#68717D] absolute left-3 top-1/2 -translate-y-1/2" />
+                <Mail className="w-4 h-4 text-[#6B6A67] absolute left-3 top-1/2 -translate-y-1/2" strokeWidth={1.5} />
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@example.com"
-                  className="w-full rounded-lg border border-[#E5E7EB] bg-white pl-9 pr-3 py-2.5 text-sm text-[#252B33] focus:outline-none focus:border-[#26364A] min-h-[44px]"
+                  className="w-full rounded-[2px] border border-[#151515]/20 bg-white pl-9 pr-3 py-2.5 text-sm text-[#151515] focus:outline-none focus:border-[#151515] min-h-[44px]"
                 />
               </div>
             </div>
 
             <div>
-              <label className="block text-xs font-medium text-[#252B33] mb-1">Password</label>
+              <label className="block text-xs font-medium text-[#151515] mb-1">Password</label>
               <div className="relative">
-                <Lock className="w-4 h-4 text-[#68717D] absolute left-3 top-1/2 -translate-y-1/2" />
+                <Lock className="w-4 h-4 text-[#6B6A67] absolute left-3 top-1/2 -translate-y-1/2" strokeWidth={1.5} />
                 <input
                   type="password"
                   required
@@ -236,7 +238,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="At least 6 characters"
-                  className="w-full rounded-lg border border-[#E5E7EB] bg-white pl-9 pr-3 py-2.5 text-sm text-[#252B33] focus:outline-none focus:border-[#26364A] min-h-[44px]"
+                  className="w-full rounded-[2px] border border-[#151515]/20 bg-white pl-9 pr-3 py-2.5 text-sm text-[#151515] focus:outline-none focus:border-[#151515] min-h-[44px]"
                 />
               </div>
             </div>
@@ -245,43 +247,43 @@ export const AuthModal: React.FC<AuthModalProps> = ({
               <>
                 <div className="grid grid-cols-2 gap-3">
                   <div>
-                    <label className="block text-xs font-medium text-[#252B33] mb-1">Country</label>
+                    <label className="block text-xs font-medium text-[#151515] mb-1">Country</label>
                     <div className="relative">
-                      <Globe className="w-4 h-4 text-[#68717D] absolute left-3 top-1/2 -translate-y-1/2" />
+                      <Globe className="w-4 h-4 text-[#6B6A67] absolute left-3 top-1/2 -translate-y-1/2" strokeWidth={1.5} />
                       <input
                         type="text"
                         value={country}
                         onChange={(e) => setCountry(e.target.value)}
                         placeholder="Nigeria"
-                        className="w-full rounded-lg border border-[#E5E7EB] bg-white pl-9 pr-3 py-2.5 text-sm text-[#252B33] focus:outline-none focus:border-[#26364A] min-h-[44px]"
+                        className="w-full rounded-[2px] border border-[#151515]/20 bg-white pl-9 pr-3 py-2.5 text-sm text-[#151515] focus:outline-none focus:border-[#151515] min-h-[44px]"
                       />
                     </div>
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-[#252B33] mb-1">City</label>
+                    <label className="block text-xs font-medium text-[#151515] mb-1">City</label>
                     <div className="relative">
-                      <MapPin className="w-4 h-4 text-[#68717D] absolute left-3 top-1/2 -translate-y-1/2" />
+                      <MapPin className="w-4 h-4 text-[#6B6A67] absolute left-3 top-1/2 -translate-y-1/2" strokeWidth={1.5} />
                       <input
                         type="text"
                         value={city}
                         onChange={(e) => setCity(e.target.value)}
                         placeholder="Lagos"
-                        className="w-full rounded-lg border border-[#E5E7EB] bg-white pl-9 pr-3 py-2.5 text-sm text-[#252B33] focus:outline-none focus:border-[#26364A] min-h-[44px]"
+                        className="w-full rounded-[2px] border border-[#151515]/20 bg-white pl-9 pr-3 py-2.5 text-sm text-[#151515] focus:outline-none focus:border-[#151515] min-h-[44px]"
                       />
                     </div>
                   </div>
                 </div>
 
-                <label className="flex items-start gap-2.5 text-xs text-[#68717D] pt-1 cursor-pointer">
+                <label className="flex items-start gap-2.5 text-xs text-[#6B6A67] pt-1 cursor-pointer">
                   <input
                     type="checkbox"
                     checked={consentGiven}
                     onChange={(e) => setConsentGiven(e.target.checked)}
-                    className="mt-0.5 rounded border-[#E5E7EB] accent-[#26364A]"
+                    className="mt-0.5 rounded-[2px] border-[#151515]/30 accent-[#151515]"
                   />
                   <span>
                     I consent to Bornfree Global Ministry storing my account details in line with the{' '}
-                    <a href="/privacy" className="underline text-[#26364A] font-medium">
+                    <a href="/privacy" className="underline text-[#151515] font-medium">
                       Privacy Policy
                     </a>{' '}
                     (NDPA 2023).
@@ -293,7 +295,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             <button
               type="submit"
               disabled={busy}
-              className="w-full rounded-lg bg-[#B99A55] py-2.5 px-4 text-sm font-semibold text-[#1D2939] hover:bg-[#c5a764] transition-colors min-h-[44px] disabled:opacity-60"
+              className="btn-press w-full rounded-[2px] bg-[#FCDC00] py-2.5 px-4 text-sm font-semibold text-[#151515] hover:bg-[#e8ca00] min-h-[44px] disabled:opacity-60"
             >
               {busy ? 'Please wait...' : mode === 'signin' ? 'Sign In' : 'Create Account'}
             </button>

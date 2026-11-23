@@ -53,6 +53,7 @@ import {
   AdminSermonsTab,
   AdminSettingsTab,
 } from '@/src/components/admin/AdminContentTabs';
+import { HighlighterSwipe } from '@/src/components/EditorialUI';
 
 type AdminModule =
   | 'overview'
@@ -156,7 +157,7 @@ export const AdminDashboardPage: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="p-8 text-center text-sm font-medium text-[#26364A]">
+      <div className="p-8 text-center text-sm font-medium text-[#151515]">
         Verifying administrative permissions...
       </div>
     );
@@ -164,17 +165,19 @@ export const AdminDashboardPage: React.FC = () => {
 
   if (!isSignedIn || !isAnyStaff) {
     return (
-      <div className="max-w-lg mx-auto rounded-2xl bg-white border border-[#E5E7EB] overflow-hidden text-center">
-        <div className="bg-[#26364A] p-6 text-white">
-          <div className="w-12 h-12 rounded-xl bg-[#1D2939] flex items-center justify-center mx-auto">
-            <ShieldAlert className="w-6 h-6 text-[#B99A55]" />
+      <div className="max-w-lg mx-auto bg-white border border-[#151515]/12 overflow-hidden text-center rounded-[2px]">
+        <div className="bg-[#151515] p-6 text-white">
+          <div className="w-12 h-12 rounded-[2px] bg-[#1F1D1C] border border-white/15 flex items-center justify-center mx-auto">
+            <ShieldAlert className="w-6 h-6 text-[#FCDC00]" strokeWidth={1.5} />
           </div>
-          <h1 className="text-xl font-bold text-white mt-3">Restricted Administrative Area</h1>
+          <h1 className="font-display font-light text-2xl text-white mt-3">
+            Restricted Administrative Area
+          </h1>
         </div>
         <div className="p-8">
-          <p className="text-sm text-[#68717D] leading-relaxed">
+          <p className="text-sm text-[#6B6A67] leading-relaxed">
             This dashboard is reserved for authorised pastors and ministry administrators. Your current role is{' '}
-            <strong className="text-[#26364A]">{ROLE_LABELS[role]}</strong>.
+            <strong className="text-[#151515]">{ROLE_LABELS[role]}</strong>.
           </p>
         </div>
       </div>
@@ -203,20 +206,22 @@ export const AdminDashboardPage: React.FC = () => {
 
   return (
     <div className="space-y-6">
-      <header className="rounded-2xl bg-[#26364A] text-white p-6 flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-        <div>
-          <p className="text-xs font-semibold uppercase tracking-wider text-[#B99A55]">
-            {ROLE_LABELS[role]}
-          </p>
-          <h1 className="text-2xl md:text-3xl font-bold text-white mt-0.5">
-            Ministry Administrative Dashboard
-          </h1>
+      <header className="bg-[#151515] text-white p-6 md:p-8 flex flex-col sm:flex-row sm:items-center justify-between gap-2 rounded-[2px]">
+        <div className="space-y-1.5">
+          <p className="text-xs font-medium text-[#FCDC00]">{ROLE_LABELS[role]}</p>
+          <HighlighterSwipe
+            highlight="Ministry"
+            rest="Administrative Dashboard"
+            as="h1"
+            onDark
+            className="text-2xl sm:text-3xl"
+          />
         </div>
       </header>
 
       {/* Module Navigation */}
       <nav
-        className="flex flex-wrap gap-1.5 rounded-xl bg-[#E5E7EB]/75 p-1.5"
+        className="flex flex-wrap gap-1.5 bg-white border border-[#151515]/12 p-1.5 rounded-[2px]"
         aria-label="Administrative modules"
       >
         {availableModules.map((m) => (
@@ -224,10 +229,10 @@ export const AdminDashboardPage: React.FC = () => {
             key={m.id}
             type="button"
             onClick={() => setModule(m.id)}
-            className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap min-h-[40px] ${
+            className={`btn-press px-3.5 py-2 rounded-[2px] text-xs font-medium transition-colors whitespace-nowrap min-h-[40px] ${
               module === m.id
-                ? 'bg-[#26364A] text-white'
-                : 'text-[#68717D] hover:bg-white/80 hover:text-[#252B33]'
+                ? 'bg-[#151515] text-white'
+                : 'text-[#6B6A67] hover:bg-[#F0F0EE] hover:text-[#151515]'
             }`}
           >
             {m.label}
@@ -250,22 +255,22 @@ export const AdminDashboardPage: React.FC = () => {
             .map((stat, idx) => (
               <div
                 key={stat.label}
-                className={`rounded-xl p-5 space-y-1.5 border ${
+                className={`p-5 space-y-1.5 border rounded-[2px] ${
                   idx === 0
-                    ? 'bg-[#26364A] text-white border-[#26364A]'
-                    : 'bg-white border-[#E5E7EB] text-[#252B33]'
+                    ? 'bg-[#151515] text-white border-[#151515]'
+                    : 'bg-white border-[#151515]/12 text-[#151515]'
                 }`}
               >
                 <p
                   className={`text-xs font-medium ${
-                    idx === 0 ? 'text-[#B99A55]' : 'text-[#68717D]'
+                    idx === 0 ? 'text-[#FCDC00]' : 'text-[#6B6A67]'
                   }`}
                 >
                   {stat.label}
                 </p>
                 <p
-                  className={`text-3xl font-bold tabular-nums ${
-                    idx === 0 ? 'text-white' : 'text-[#26364A]'
+                  className={`text-3xl font-light tabular-nums ${
+                    idx === 0 ? 'text-white' : 'text-[#151515]'
                   }`}
                 >
                   {stat.value}

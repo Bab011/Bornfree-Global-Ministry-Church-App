@@ -35,7 +35,7 @@ export default function App() {
           <AppShell>
             <Suspense
               fallback={
-                <div className="p-8 text-center text-sm font-medium text-[#26364A]">Loading...</div>
+                <div className="p-8 text-center text-sm font-normal text-[#6B6A67]">Loading...</div>
               }
             >
               <Routes>

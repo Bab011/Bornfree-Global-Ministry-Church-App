@@ -1,5 +1,14 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { CalendarDays, CalendarPlus, CheckCircle2, Clock, MapPin, Users, X } from 'lucide-react';
+import {
+  ArrowRight,
+  CalendarDays,
+  CalendarPlus,
+  CheckCircle2,
+  Clock,
+  MapPin,
+  Users,
+  X,
+} from 'lucide-react';
 import { EVENT_CATEGORIES } from '@/src/constants/ministry';
 import { useAuth } from '@/src/contexts/AuthContext';
 import { submitEventRegistration, subscribePublishedEvents } from '@/src/services/firestoreService';
@@ -7,6 +16,7 @@ import { MinistryEvent } from '@/src/types/ministry';
 import { downloadIcsEvent } from '@/src/utils/serviceSchedule';
 import { isSafeHttpUrl } from '@/src/utils/media';
 import { Link } from 'react-router-dom';
+import { BORNFREE_PHOTOS, HighlighterSwipe } from '@/src/components/EditorialUI';
 
 export const EventsPage: React.FC = () => {
   const { profile, user } = useAuth();
@@ -78,44 +88,61 @@ export const EventsPage: React.FC = () => {
   };
 
   return (
-    <div className="space-y-6">
-      <header className="rounded-2xl bg-white border border-[#E5E7EB] p-6 md:p-8 space-y-4">
-        <div className="space-y-1.5">
-          <p className="text-xs font-semibold text-[#26364A]">Gatherings, Conventions & Outreaches</p>
-          <h1 className="text-2xl md:text-3xl font-bold text-[#26364A]">
-            Events & Ministry Programmes
-          </h1>
-          <p className="text-sm text-[#68717D] max-w-2xl">
-            Discover upcoming conventions, conferences, crusades, outreach programmes, and special prayer gatherings.
-          </p>
-        </div>
+    <div className="space-y-8">
+      <header className="bg-white border border-[#151515]/12 overflow-hidden rounded-[2px]">
+        <div className="grid grid-cols-1 lg:grid-cols-12">
+          <div className="lg:col-span-8 p-6 md:p-8 space-y-4">
+            <div className="space-y-2">
+              <p className="text-xs font-normal text-[#6B6A67]">
+                Gatherings, Conventions & Outreaches
+              </p>
+              <HighlighterSwipe
+                highlight="Events"
+                rest="& Ministry Programmes"
+                as="h1"
+                className="text-3xl sm:text-4xl"
+              />
+              <p className="text-sm text-[#6B6A67] max-w-2xl">
+                Discover upcoming conventions, conferences, crusades, outreach programmes, and special prayer gatherings.
+              </p>
+            </div>
 
-        <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
-          {['All', ...EVENT_CATEGORIES].map((cat) => (
-            <button
-              key={cat}
-              type="button"
-              onClick={() => setCategoryFilter(cat)}
-              className={`px-3.5 py-2 rounded-lg text-xs font-semibold transition-colors whitespace-nowrap shrink-0 min-h-[40px] ${
-                categoryFilter === cat
-                  ? 'bg-[#26364A] text-white'
-                  : 'bg-[#F4F2EC] text-[#252B33] hover:bg-[#E5E7EB]/70'
-              }`}
-            >
-              {cat}
-            </button>
-          ))}
+            <div className="flex items-center gap-1.5 overflow-x-auto pb-1">
+              {['All', ...EVENT_CATEGORIES].map((cat) => (
+                <button
+                  key={cat}
+                  type="button"
+                  onClick={() => setCategoryFilter(cat)}
+                  className={`btn-press px-3.5 py-2 rounded-[2px] text-xs font-medium transition-colors whitespace-nowrap shrink-0 min-h-[40px] ${
+                    categoryFilter === cat
+                      ? 'bg-[#151515] text-white'
+                      : 'bg-[#F0F0EE] text-[#151515] hover:bg-[#E9DFC6]'
+                  }`}
+                >
+                  {cat}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className="lg:col-span-4 bg-[#151515]">
+            <img
+              src={BORNFREE_PHOTOS.convention2026}
+              alt="Bornfree Global Ministry convention and gatherings"
+              className="w-full h-52 lg:h-full object-cover object-center"
+            />
+          </div>
         </div>
       </header>
 
       {filteredEvents.length === 0 ? (
-        <div className="rounded-2xl bg-white border border-[#E5E7EB] p-8 text-center space-y-2">
-          <CalendarDays className="w-8 h-8 text-[#26364A] mx-auto" />
-          <p className="text-sm font-semibold text-[#252B33]">No upcoming events published</p>
-          <p className="text-xs text-[#68717D] max-w-md mx-auto">
+        <div className="bg-white border border-[#151515]/12 p-8 text-center space-y-3 rounded-[2px]">
+          <CalendarDays className="w-8 h-8 text-[#151515] mx-auto" strokeWidth={1.5} />
+          <p className="text-sm font-medium text-[#151515]">No upcoming events published</p>
+          <p className="text-xs text-[#6B6A67] max-w-md mx-auto">
             Event administrators can create and publish conventions, conferences, and outreach programmes from the Administrative Dashboard. Meanwhile, join our weekly Wednesday and Sunday services.
           </p>
-          <div className="pt-2 flex justify-center gap-4 text-xs font-semibold text-[#26364A]">
+          <div className="pt-2 flex justify-center gap-5 text-xs font-semibold text-[#151515]">
             <Link to="/services/wednesday" className="hover:underline">
               Wednesday Service
             </Link>
@@ -134,12 +161,11 @@ export const EventsPage: React.FC = () => {
                 setRegSuccess(null);
                 setRegError(null);
               }}
-              className="cursor-pointer rounded-2xl bg-white border border-[#E5E7EB] overflow-hidden hover:border-[#26364A]/45 transition-colors flex flex-col justify-between"
+              className="cursor-pointer bg-white border border-[#151515]/12 overflow-hidden hover:border-[#151515]/50 transition-colors flex flex-col justify-between rounded-[2px]"
             >
               <div>
-                {/* Luma-inspired Event Banner */}
                 {ev.bannerUrl && isSafeHttpUrl(ev.bannerUrl) ? (
-                  <div className="relative h-48 w-full bg-[#26364A]">
+                  <div className="relative h-52 w-full bg-[#151515]">
                     <img
                       src={ev.bannerUrl}
                       alt={ev.title}
@@ -147,51 +173,53 @@ export const EventsPage: React.FC = () => {
                       referrerPolicy="no-referrer"
                       className="w-full h-full object-cover"
                     />
-                    <div className="absolute inset-0 bg-gradient-to-t from-[#1D2939]/85 via-[#1D2939]/20 to-transparent" />
-                    <div className="absolute bottom-3 left-5 right-5 flex items-center justify-between text-xs font-semibold text-[#E5E7EB] tabular-nums">
+                    <div className="absolute inset-x-0 bottom-0 bg-[#151515]/80 px-5 py-2.5 flex items-center justify-between text-xs font-normal text-[#E5E5E2] tabular-nums">
                       <span>{ev.category}</span>
                       <span>{ev.date}</span>
                     </div>
                   </div>
                 ) : (
-                  <div className="bg-[#26364A] text-white px-6 py-5 space-y-2">
-                    <div className="flex items-center justify-between gap-2 text-xs font-semibold text-[#B99A55] tabular-nums">
+                  <div className="bg-[#151515] text-white px-6 py-5 space-y-2">
+                    <div className="flex items-center justify-between gap-2 text-xs font-medium text-[#FCDC00] tabular-nums">
                       <span>{ev.category}</span>
                       <span>{ev.date}</span>
                     </div>
-                    <h2 className="text-xl font-bold text-white leading-snug">{ev.title}</h2>
+                    <h2 className="font-display font-light text-2xl text-white leading-snug">
+                      {ev.title}
+                    </h2>
                     {ev.theme && (
-                      <p className="text-xs font-medium text-[#E5E7EB]/85">Theme: {ev.theme}</p>
+                      <p className="text-xs font-normal text-[#A3A19D]">Theme: {ev.theme}</p>
                     )}
                   </div>
                 )}
 
-                {/* Event Organised Metadata */}
                 <div className="p-6 space-y-3">
                   {ev.bannerUrl && isSafeHttpUrl(ev.bannerUrl) && (
                     <div className="space-y-1">
-                      <h2 className="text-xl font-bold text-[#26364A] leading-snug">{ev.title}</h2>
+                      <h2 className="font-display font-normal text-2xl text-[#151515] leading-snug">
+                        {ev.title}
+                      </h2>
                       {ev.theme && (
-                        <p className="text-xs font-semibold text-[#68717D]">Theme: {ev.theme}</p>
+                        <p className="text-xs font-medium text-[#6B6A67]">Theme: {ev.theme}</p>
                       )}
                     </div>
                   )}
 
-                  <div className="space-y-2 text-xs text-[#252B33]">
+                  <div className="space-y-2 text-xs text-[#151515]">
                     <p className="flex items-center gap-2 tabular-nums font-medium">
-                      <Clock className="w-4 h-4 text-[#26364A] shrink-0" />
+                      <Clock className="w-4 h-4 text-[#151515] shrink-0" strokeWidth={1.5} />
                       <span>
                         {ev.date} · {ev.startTime}
                         {ev.endTime ? ` – ${ev.endTime}` : ''}
                       </span>
                     </p>
-                    <p className="flex items-start gap-2 text-[#68717D]">
-                      <MapPin className="w-4 h-4 text-[#26364A] shrink-0 mt-0.5" />
+                    <p className="flex items-start gap-2 text-[#6B6A67]">
+                      <MapPin className="w-4 h-4 text-[#151515] shrink-0 mt-0.5" strokeWidth={1.5} />
                       <span>{ev.venue}</span>
                     </p>
                     {ev.guestMinisters && (
-                      <p className="flex items-start gap-2 text-[#68717D]">
-                        <Users className="w-4 h-4 text-[#26364A] shrink-0 mt-0.5" />
+                      <p className="flex items-start gap-2 text-[#6B6A67]">
+                        <Users className="w-4 h-4 text-[#151515] shrink-0 mt-0.5" strokeWidth={1.5} />
                         <span>{ev.guestMinisters}</span>
                       </p>
                     )}
@@ -199,21 +227,21 @@ export const EventsPage: React.FC = () => {
                 </div>
               </div>
 
-              {/* Action Strip */}
-              <div className="px-6 py-4 bg-[#F4F2EC]/80 border-t border-[#E5E7EB] flex flex-wrap items-center justify-between gap-2.5">
+              <div className="px-6 py-4 bg-[#F0F0EE] border-t border-[#151515]/12 flex flex-wrap items-center justify-between gap-2.5">
                 <button
                   type="button"
                   onClick={(e) => {
                     e.stopPropagation();
                     handleAddEventCalendar(ev);
                   }}
-                  className="inline-flex items-center gap-1.5 rounded-lg bg-white border border-[#E5E7EB] px-3.5 py-2 text-xs font-semibold text-[#252B33] hover:bg-[#E5E7EB]/50 min-h-[40px]"
+                  className="btn-press inline-flex items-center gap-1.5 rounded-[2px] bg-white border border-[#151515]/15 px-3.5 py-2 text-xs font-medium text-[#151515] hover:bg-[#E9DFC6] min-h-[40px]"
                 >
-                  <CalendarPlus className="w-3.5 h-3.5 text-[#26364A]" />
+                  <CalendarPlus className="w-3.5 h-3.5" strokeWidth={1.5} />
                   <span>Add to Calendar</span>
                 </button>
-                <span className="inline-flex items-center rounded-lg bg-[#B99A55] px-4 py-2 text-xs font-semibold text-[#1D2939] hover:bg-[#c5a764] min-h-[40px]">
-                  {ev.registrationEnabled ? 'Register & Details →' : 'View Details →'}
+                <span className="inline-flex items-center gap-1.5 rounded-[2px] bg-[#FCDC00] px-4 py-2 text-xs font-semibold text-[#151515] min-h-[40px]">
+                  <span>{ev.registrationEnabled ? 'Register & Details' : 'View Details'}</span>
+                  <ArrowRight className="w-3.5 h-3.5" strokeWidth={1.5} />
                 </span>
               </div>
             </article>
@@ -223,16 +251,18 @@ export const EventsPage: React.FC = () => {
 
       {/* Event Details & Registration Modal */}
       {selectedEvent && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#1D2939]/70 backdrop-blur-xs p-4 overflow-y-auto">
-          <div className="w-full max-w-2xl rounded-2xl bg-white border border-[#E5E7EB] overflow-hidden shadow-lg my-8">
-            <div className="bg-[#26364A] text-white px-6 py-5 flex items-start justify-between gap-4">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#151515]/80 p-4 overflow-y-auto">
+          <div className="w-full max-w-2xl bg-white border border-[#151515]/20 overflow-hidden my-8 rounded-[2px]">
+            <div className="bg-[#151515] text-white px-6 py-5 flex items-start justify-between gap-4">
               <div className="space-y-1">
-                <p className="text-xs font-semibold text-[#B99A55] tabular-nums">
+                <p className="text-xs font-medium text-[#FCDC00] tabular-nums">
                   {selectedEvent.category} · {selectedEvent.date}
                 </p>
-                <h2 className="text-2xl font-bold text-white">{selectedEvent.title}</h2>
+                <h2 className="font-display font-light text-2xl text-white">
+                  {selectedEvent.title}
+                </h2>
                 {selectedEvent.theme && (
-                  <p className="text-sm font-medium text-[#E5E7EB]/85">
+                  <p className="text-sm font-normal text-[#A3A19D]">
                     Theme: {selectedEvent.theme}
                   </p>
                 )}
@@ -241,9 +271,9 @@ export const EventsPage: React.FC = () => {
                 type="button"
                 onClick={() => setSelectedEvent(null)}
                 aria-label="Close event details"
-                className="p-2 text-[#E5E7EB]/80 hover:text-white min-h-[44px] min-w-[44px] flex items-center justify-center"
+                className="w-10 h-10 rounded-[2px] bg-white text-[#151515] hover:bg-[#FCDC00] flex items-center justify-center shrink-0"
               >
-                <X className="w-5 h-5" />
+                <X className="w-5 h-5" strokeWidth={1.5} />
               </button>
             </div>
 
@@ -253,36 +283,36 @@ export const EventsPage: React.FC = () => {
                   src={selectedEvent.bannerUrl}
                   alt={selectedEvent.title}
                   referrerPolicy="no-referrer"
-                  className="w-full h-52 object-cover rounded-xl"
+                  className="w-full h-52 object-cover rounded-[2px]"
                 />
               )}
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-[#252B33] bg-[#F4F2EC] rounded-xl p-4 border border-[#E5E7EB]">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-[#151515] bg-[#F0F0EE] p-4 border border-[#151515]/12 rounded-[2px]">
                 <div className="flex items-center gap-2 tabular-nums font-medium">
-                  <Clock className="w-4 h-4 text-[#26364A]" />
+                  <Clock className="w-4 h-4 text-[#151515]" strokeWidth={1.5} />
                   <span>
                     {selectedEvent.startTime}
                     {selectedEvent.endTime ? ` – ${selectedEvent.endTime}` : ''}
                   </span>
                 </div>
                 <div className="flex items-start gap-2">
-                  <MapPin className="w-4 h-4 text-[#26364A] shrink-0" />
+                  <MapPin className="w-4 h-4 text-[#151515] shrink-0" strokeWidth={1.5} />
                   <span>{selectedEvent.venue}</span>
                 </div>
                 {selectedEvent.guestMinisters && (
                   <div className="flex items-start gap-2 sm:col-span-2">
-                    <Users className="w-4 h-4 text-[#26364A] shrink-0" />
+                    <Users className="w-4 h-4 text-[#151515] shrink-0" strokeWidth={1.5} />
                     <span>Ministers: {selectedEvent.guestMinisters}</span>
                   </div>
                 )}
               </div>
 
-              <p className="text-sm text-[#252B33] leading-relaxed whitespace-pre-line">
+              <p className="text-sm text-[#151515] leading-relaxed whitespace-pre-line">
                 {selectedEvent.description}
               </p>
 
               {selectedEvent.contactInfo && (
-                <p className="text-xs text-[#68717D] font-medium">
+                <p className="text-xs text-[#6B6A67] font-medium">
                   Contact: {selectedEvent.contactInfo}
                 </p>
               )}
@@ -291,31 +321,33 @@ export const EventsPage: React.FC = () => {
                 <button
                   type="button"
                   onClick={() => handleAddEventCalendar(selectedEvent)}
-                  className="inline-flex items-center gap-2 rounded-lg border border-[#E5E7EB] bg-white px-4 py-2.5 text-xs font-semibold text-[#252B33] hover:bg-[#F4F2EC] min-h-[44px]"
+                  className="btn-press inline-flex items-center gap-2 rounded-[2px] border border-[#151515]/20 bg-white px-4 py-2.5 text-xs font-medium text-[#151515] hover:bg-[#F0F0EE] min-h-[44px]"
                 >
-                  <CalendarPlus className="w-4 h-4 text-[#26364A]" />
+                  <CalendarPlus className="w-4 h-4" strokeWidth={1.5} />
                   <span>Add to Calendar</span>
                 </button>
               </div>
 
               {selectedEvent.registrationEnabled && (
-                <div className="pt-4 border-t border-[#E5E7EB] space-y-4">
-                  <h3 className="text-base font-semibold text-[#26364A]">Event Registration</h3>
+                <div className="pt-4 border-t border-[#151515]/12 space-y-4">
+                  <h3 className="font-display font-normal text-xl text-[#151515]">
+                    Event Registration
+                  </h3>
 
                   {regSuccess ? (
-                    <div className="rounded-xl bg-[#F4F2EC] border border-[#E5E7EB] p-5 space-y-1.5">
-                      <div className="flex items-center gap-2 font-semibold text-sm text-[#26364A]">
-                        <CheckCircle2 className="w-5 h-5 text-[#B99A55]" />
+                    <div className="bg-[#F0F0EE] border border-[#151515]/12 p-5 space-y-1.5 rounded-[2px]">
+                      <div className="flex items-center gap-2 font-medium text-sm text-[#151515]">
+                        <CheckCircle2 className="w-5 h-5 text-[#151515]" strokeWidth={1.5} />
                         <span>Registration Confirmed</span>
                       </div>
-                      <p className="text-xs text-[#68717D]">
-                        Confirmation ID: <span className="font-mono text-[#252B33]">{regSuccess}</span>. We look forward to welcoming you!
+                      <p className="text-xs text-[#6B6A67]">
+                        Confirmation ID: <span className="font-mono text-[#151515]">{regSuccess}</span>. We look forward to welcoming you!
                       </p>
                     </div>
                   ) : (
                     <form onSubmit={handleRegister} className="space-y-3">
                       {regError && (
-                        <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-xs text-red-800">
+                        <div className="rounded-[2px] bg-red-50 border border-red-300 p-3 text-xs text-red-800">
                           {regError}
                         </div>
                       )}
@@ -327,7 +359,7 @@ export const EventsPage: React.FC = () => {
                           value={fullName}
                           onChange={(e) => setFullName(e.target.value)}
                           placeholder="Full Name *"
-                          className="rounded-lg border border-[#E5E7EB] bg-white px-3.5 py-2.5 text-sm focus:border-[#26364A] focus:outline-none min-h-[44px]"
+                          className="rounded-[2px] border border-[#151515]/20 bg-white px-3.5 py-2.5 text-sm focus:border-[#151515] focus:outline-none min-h-[44px]"
                         />
                         <input
                           type="email"
@@ -335,21 +367,21 @@ export const EventsPage: React.FC = () => {
                           value={email}
                           onChange={(e) => setEmail(e.target.value)}
                           placeholder="Email Address *"
-                          className="rounded-lg border border-[#E5E7EB] bg-white px-3.5 py-2.5 text-sm focus:border-[#26364A] focus:outline-none min-h-[44px]"
+                          className="rounded-[2px] border border-[#151515]/20 bg-white px-3.5 py-2.5 text-sm focus:border-[#151515] focus:outline-none min-h-[44px]"
                         />
                         <input
                           type="tel"
                           value={phone}
                           onChange={(e) => setPhone(e.target.value)}
                           placeholder="Phone (optional)"
-                          className="rounded-lg border border-[#E5E7EB] bg-white px-3.5 py-2.5 text-sm focus:border-[#26364A] focus:outline-none min-h-[44px]"
+                          className="rounded-[2px] border border-[#151515]/20 bg-white px-3.5 py-2.5 text-sm focus:border-[#151515] focus:outline-none min-h-[44px]"
                         />
                         <select
                           value={attendanceMode}
                           onChange={(e) =>
                             setAttendanceMode(e.target.value as 'In Person' | 'Online')
                           }
-                          className="rounded-lg border border-[#E5E7EB] bg-white px-3.5 py-2.5 text-sm focus:border-[#26364A] focus:outline-none min-h-[44px]"
+                          className="rounded-[2px] border border-[#151515]/20 bg-white px-3.5 py-2.5 text-sm focus:border-[#151515] focus:outline-none min-h-[44px]"
                         >
                           <option value="In Person">Attending In Person</option>
                           <option value="Online">Attending Online</option>
@@ -359,24 +391,24 @@ export const EventsPage: React.FC = () => {
                           value={country}
                           onChange={(e) => setCountry(e.target.value)}
                           placeholder="Country (optional)"
-                          className="rounded-lg border border-[#E5E7EB] bg-white px-3.5 py-2.5 text-sm focus:border-[#26364A] focus:outline-none min-h-[44px]"
+                          className="rounded-[2px] border border-[#151515]/20 bg-white px-3.5 py-2.5 text-sm focus:border-[#151515] focus:outline-none min-h-[44px]"
                         />
                         <input
                           type="text"
                           value={city}
                           onChange={(e) => setCity(e.target.value)}
                           placeholder="City (optional)"
-                          className="rounded-lg border border-[#E5E7EB] bg-white px-3.5 py-2.5 text-sm focus:border-[#26364A] focus:outline-none min-h-[44px]"
+                          className="rounded-[2px] border border-[#151515]/20 bg-white px-3.5 py-2.5 text-sm focus:border-[#151515] focus:outline-none min-h-[44px]"
                         />
                       </div>
 
-                      <label className="flex items-start gap-2 text-xs text-[#68717D] cursor-pointer">
+                      <label className="flex items-start gap-2 text-xs text-[#6B6A67] cursor-pointer">
                         <input
                           type="checkbox"
                           required
                           checked={consentGiven}
                           onChange={(e) => setConsentGiven(e.target.checked)}
-                          className="mt-0.5 accent-[#26364A]"
+                          className="mt-0.5 accent-[#151515]"
                         />
                         <span>
                           I consent to Bornfree Global Ministry processing my registration details for event coordination and reminders.
@@ -386,7 +418,7 @@ export const EventsPage: React.FC = () => {
                       <button
                         type="submit"
                         disabled={submitting}
-                        className="rounded-lg bg-[#B99A55] px-5 py-2.5 text-sm font-semibold text-[#1D2939] hover:bg-[#c5a764] min-h-[44px] disabled:opacity-60"
+                        className="btn-press rounded-[2px] bg-[#FCDC00] px-5 py-2.5 text-sm font-semibold text-[#151515] hover:bg-[#ffe32e] min-h-[44px] disabled:opacity-60"
                       >
                         {submitting ? 'Registering...' : 'Complete Registration'}
                       </button>

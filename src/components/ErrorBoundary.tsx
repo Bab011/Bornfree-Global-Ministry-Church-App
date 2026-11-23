@@ -32,26 +32,26 @@ export class ErrorBoundary extends React.Component<
       }
 
       return (
-        <div className="min-h-screen bg-[#F4F2EC] flex items-center justify-center p-6">
-          <div className="max-w-md w-full bg-white border border-[#E5E7EB] rounded-2xl p-8 text-center space-y-4">
-            <div className="w-20 h-20 mx-auto rounded-full bg-white p-1.5 border border-[#E5E7EB] flex items-center justify-center">
+        <div className="min-h-screen bg-[#F0F0EE] flex items-center justify-center p-6">
+          <div className="max-w-md w-full bg-white border border-[#151515]/15 rounded-[2px] p-8 text-center space-y-5">
+            <div className="w-20 h-20 mx-auto bg-[#151515] p-2 flex items-center justify-center">
               <img
                 src={MINISTRY_IDENTITY.logoUrl}
                 alt="Bornfree Global Ministry Logo"
                 className="w-full h-full object-contain"
               />
             </div>
-            <h1 className="text-xl font-semibold text-[#26364A]">
+            <h1 className="text-2xl font-light text-[#151515]">
               Unable to Complete Request
             </h1>
-            <p className="text-sm text-[#68717D] leading-relaxed">{friendlyMessage}</p>
+            <p className="text-sm text-[#6B6A67] leading-relaxed">{friendlyMessage}</p>
             <button
               type="button"
               onClick={() => {
                 this.setState({ hasError: false, message: '' });
                 window.location.href = '/';
               }}
-              className="inline-flex items-center justify-center px-5 py-2.5 rounded-lg bg-[#B99A55] text-[#1D2939] text-sm font-semibold hover:bg-[#c5a764] transition-colors min-h-[44px]"
+              className="btn-press inline-flex items-center justify-center px-6 py-2.5 rounded-[2px] bg-[#FCDC00] text-[#151515] text-sm font-semibold hover:bg-[#e8ca00] min-h-[44px]"
             >
               Return Home
             </button>

@@ -30,6 +30,7 @@ import {
   Testimony,
 } from '@/src/types/ministry';
 import { AuthModal } from '@/src/components/AuthModal';
+import { BORNFREE_PHOTOS, HighlighterSwipe } from '@/src/components/EditorialUI';
 
 type PrayerTab = 'submit' | 'my-requests' | 'prayer-wall' | 'testimonies';
 
@@ -182,20 +183,37 @@ export const PrayerPage: React.FC = () => {
   const statusSteps = ['Received', 'Assigned', 'Follow-up', 'Closed'];
 
   return (
-    <div className="space-y-6 max-w-4xl mx-auto">
-      <header className="rounded-2xl bg-white border border-[#E5E7EB] p-6 md:p-8 space-y-2">
-        <p className="text-xs font-semibold text-[#26364A]">Sanctuary of Intercession & Care</p>
-        <h1 className="text-2xl md:text-3xl font-bold text-[#26364A]">Prayer Centre</h1>
-        <p className="text-sm text-[#68717D] max-w-2xl leading-relaxed">
-          Submit confidential prayer requests for pastoral care, join our moderated community Prayer Wall, or share a testimony of God’s faithfulness.
-        </p>
+    <div className="space-y-8 max-w-4xl mx-auto">
+      <header className="bg-[#151515] text-white overflow-hidden rounded-[2px]">
+        <div className="grid grid-cols-1 md:grid-cols-12">
+          <div className="md:col-span-8 p-6 md:p-8 space-y-3 flex flex-col justify-center">
+            <p className="text-xs font-normal text-[#A3A19D]">Sanctuary of Intercession & Care</p>
+            <HighlighterSwipe
+              highlight="Prayer"
+              rest="Centre"
+              as="h1"
+              onDark
+              className="text-3xl sm:text-4xl"
+            />
+            <p className="text-sm font-light text-[#D4D3CE] max-w-xl leading-relaxed">
+              Submit confidential prayer requests for pastoral care, join our moderated community Prayer Wall, or share a testimony of God’s faithfulness.
+            </p>
+          </div>
+          <div className="md:col-span-4 bg-[#1F1D1C]">
+            <img
+              src={BORNFREE_PHOTOS.prayerFocus}
+              alt="Intercessory prayer at Bornfree Global Ministry"
+              className="w-full h-44 md:h-full object-cover object-center"
+            />
+          </div>
+        </div>
       </header>
 
       {/* Segmented Navigation Tabs */}
       <div
         role="tablist"
         aria-label="Prayer Centre sections"
-        className="flex items-center gap-1 p-1 rounded-xl bg-[#E5E7EB]/75 overflow-x-auto"
+        className="flex items-center gap-1 p-1 bg-white border border-[#151515]/12 overflow-x-auto rounded-[2px]"
       >
         {[
           { id: 'submit', label: 'Submit Request' },
@@ -209,10 +227,10 @@ export const PrayerPage: React.FC = () => {
             role="tab"
             aria-selected={tab === item.id}
             onClick={() => setTab(item.id as PrayerTab)}
-            className={`flex-1 px-3.5 py-2.5 text-xs font-semibold rounded-lg transition-colors whitespace-nowrap shrink-0 min-h-[44px] ${
+            className={`btn-press flex-1 px-4 py-2.5 text-xs font-medium rounded-[2px] transition-colors whitespace-nowrap shrink-0 min-h-[44px] ${
               tab === item.id
-                ? 'bg-[#26364A] text-white'
-                : 'text-[#68717D] hover:text-[#252B33]'
+                ? 'bg-[#151515] text-white'
+                : 'text-[#6B6A67] hover:text-[#151515]'
             }`}
           >
             {item.label}
@@ -222,28 +240,28 @@ export const PrayerPage: React.FC = () => {
 
       {/* TAB 1: Submit Prayer Request */}
       {tab === 'submit' && (
-        <section className="rounded-2xl bg-white border border-[#E5E7EB] p-6 md:p-8 space-y-5">
-          <div className="flex items-start gap-3 rounded-xl bg-[#F4F2EC] border border-[#E5E7EB] p-4 text-xs text-[#252B33] leading-relaxed">
-            <Lock className="w-4 h-4 text-[#26364A] shrink-0 mt-0.5" />
+        <section className="bg-white border border-[#151515]/12 p-6 md:p-8 space-y-5 rounded-[2px]">
+          <div className="flex items-start gap-3 bg-[#F0F0EE] border border-[#151515]/12 p-4 text-xs text-[#151515] leading-relaxed rounded-[2px]">
+            <Lock className="w-4 h-4 text-[#151515] shrink-0 mt-0.5" strokeWidth={1.5} />
             <p>
               <strong>Confidentiality Guarantee:</strong> Private prayer requests are strictly accessible only to authorised assigned pastoral personnel. Nothing is ever published to the Prayer Wall without your explicit selection and leadership moderation.
             </p>
           </div>
 
           {prayerSuccessId ? (
-            <div className="rounded-xl bg-[#F4F2EC] border border-[#E5E7EB] p-6 space-y-3">
-              <div className="flex items-center gap-2 text-[#26364A]">
-                <CheckCircle2 className="w-5 h-5 text-[#B99A55]" />
-                <h2 className="text-base font-semibold">Prayer Request Received</h2>
+            <div className="bg-[#F0F0EE] border border-[#151515]/12 p-6 space-y-3 rounded-[2px]">
+              <div className="flex items-center gap-2 text-[#151515]">
+                <CheckCircle2 className="w-5 h-5 text-[#151515]" strokeWidth={1.5} />
+                <h2 className="text-base font-medium">Prayer Request Received</h2>
               </div>
-              <p className="text-sm text-[#68717D]">
-                Reference: <span className="font-mono text-xs text-[#252B33]">{prayerSuccessId}</span>. Our pastoral and prayer team is standing with you in prayer.
+              <p className="text-sm text-[#6B6A67]">
+                Reference: <span className="font-mono text-xs text-[#151515]">{prayerSuccessId}</span>. Our pastoral and prayer team is standing with you in prayer.
               </p>
               <div className="flex flex-wrap gap-3 pt-1">
                 <button
                   type="button"
                   onClick={() => setPrayerSuccessId(null)}
-                  className="rounded-lg bg-[#B99A55] px-4 py-2 text-xs font-semibold text-[#1D2939] hover:bg-[#c5a764] min-h-[40px]"
+                  className="btn-press rounded-[2px] bg-[#FCDC00] px-4 py-2.5 text-xs font-semibold text-[#151515] hover:bg-[#ffe32e] min-h-[40px]"
                 >
                   Submit Another Request
                 </button>
@@ -251,7 +269,7 @@ export const PrayerPage: React.FC = () => {
                   <button
                     type="button"
                     onClick={() => setTab('my-requests')}
-                    className="rounded-lg bg-white border border-[#E5E7EB] px-4 py-2 text-xs font-semibold text-[#26364A] hover:bg-[#E5E7EB]/40 min-h-[40px]"
+                    className="btn-press rounded-[2px] bg-white border border-[#151515]/20 px-4 py-2.5 text-xs font-medium text-[#151515] hover:bg-[#F0F0EE] min-h-[40px]"
                   >
                     Track My Requests
                   </button>
@@ -261,14 +279,14 @@ export const PrayerPage: React.FC = () => {
           ) : (
             <form onSubmit={handlePrayerSubmit} className="space-y-4">
               {prayerError && (
-                <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-xs text-red-800">
+                <div className="rounded-[2px] bg-red-50 border border-red-300 p-3 text-xs text-red-800">
                   {prayerError}
                 </div>
               )}
 
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5">
                 <div>
-                  <label className="block text-xs font-medium text-[#252B33] mb-1">
+                  <label className="block text-xs font-medium text-[#151515] mb-1">
                     Name (optional)
                   </label>
                   <input
@@ -276,11 +294,11 @@ export const PrayerPage: React.FC = () => {
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="Optional"
-                    className="w-full rounded-lg border border-[#E5E7EB] bg-white px-3.5 py-2.5 text-sm focus:border-[#26364A] focus:outline-none min-h-[44px]"
+                    className="w-full rounded-[2px] border border-[#151515]/20 bg-white px-3.5 py-2.5 text-sm focus:border-[#151515] focus:outline-none min-h-[44px]"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-[#252B33] mb-1">
+                  <label className="block text-xs font-medium text-[#151515] mb-1">
                     Email (optional)
                   </label>
                   <input
@@ -288,11 +306,11 @@ export const PrayerPage: React.FC = () => {
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     placeholder="Optional"
-                    className="w-full rounded-lg border border-[#E5E7EB] bg-white px-3.5 py-2.5 text-sm focus:border-[#26364A] focus:outline-none min-h-[44px]"
+                    className="w-full rounded-[2px] border border-[#151515]/20 bg-white px-3.5 py-2.5 text-sm focus:border-[#151515] focus:outline-none min-h-[44px]"
                   />
                 </div>
                 <div>
-                  <label className="block text-xs font-medium text-[#252B33] mb-1">
+                  <label className="block text-xs font-medium text-[#151515] mb-1">
                     Phone Number (optional)
                   </label>
                   <input
@@ -300,20 +318,20 @@ export const PrayerPage: React.FC = () => {
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     placeholder="Optional"
-                    className="w-full rounded-lg border border-[#E5E7EB] bg-white px-3.5 py-2.5 text-sm focus:border-[#26364A] focus:outline-none min-h-[44px]"
+                    className="w-full rounded-[2px] border border-[#151515]/20 bg-white px-3.5 py-2.5 text-sm focus:border-[#151515] focus:outline-none min-h-[44px]"
                   />
                 </div>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                 <div>
-                  <label className="block text-xs font-medium text-[#252B33] mb-1">
+                  <label className="block text-xs font-medium text-[#151515] mb-1">
                     Prayer Category *
                   </label>
                   <select
                     value={category}
                     onChange={(e) => setCategory(e.target.value as PrayerCategory)}
-                    className="w-full rounded-lg border border-[#E5E7EB] bg-white px-3.5 py-2.5 text-sm focus:border-[#26364A] focus:outline-none min-h-[44px]"
+                    className="w-full rounded-[2px] border border-[#151515]/20 bg-white px-3.5 py-2.5 text-sm focus:border-[#151515] focus:outline-none min-h-[44px]"
                   >
                     {PRAYER_CATEGORIES.map((c) => (
                       <option key={c} value={c}>
@@ -324,13 +342,13 @@ export const PrayerPage: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-[#252B33] mb-1">
+                  <label className="block text-xs font-medium text-[#151515] mb-1">
                     Preferred Contact Method *
                   </label>
                   <select
                     value={preferredContact}
                     onChange={(e) => setPreferredContact(e.target.value as PreferredContact)}
-                    className="w-full rounded-lg border border-[#E5E7EB] bg-white px-3.5 py-2.5 text-sm focus:border-[#26364A] focus:outline-none min-h-[44px]"
+                    className="w-full rounded-[2px] border border-[#151515]/20 bg-white px-3.5 py-2.5 text-sm focus:border-[#151515] focus:outline-none min-h-[44px]"
                   >
                     {PREFERRED_CONTACT_METHODS.map((m) => (
                       <option key={m} value={m}>
@@ -342,7 +360,7 @@ export const PrayerPage: React.FC = () => {
               </div>
 
               <div>
-                <label className="block text-xs font-medium text-[#252B33] mb-1">
+                <label className="block text-xs font-medium text-[#151515] mb-1">
                   Prayer Request Description *
                 </label>
                 <textarea
@@ -351,12 +369,12 @@ export const PrayerPage: React.FC = () => {
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
                   placeholder="Share how we can pray with you..."
-                  className="w-full rounded-lg border border-[#E5E7EB] bg-white px-3.5 py-2.5 text-sm focus:border-[#26364A] focus:outline-none"
+                  className="w-full rounded-[2px] border border-[#151515]/20 bg-white px-3.5 py-2.5 text-sm focus:border-[#151515] focus:outline-none"
                 />
               </div>
 
               <div className="space-y-2">
-                <label className="block text-xs font-medium text-[#252B33]">
+                <label className="block text-xs font-medium text-[#151515]">
                   Privacy Preference *
                 </label>
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
@@ -381,16 +399,20 @@ export const PrayerPage: React.FC = () => {
                       key={opt.val}
                       type="button"
                       onClick={() => setPrivacy(opt.val)}
-                      className={`text-left rounded-xl border p-3.5 transition-colors ${
+                      className={`text-left rounded-[2px] border p-3.5 transition-colors ${
                         privacy === opt.val
-                          ? 'border-[#26364A] bg-[#F4F2EC]'
-                          : 'border-[#E5E7EB] bg-white hover:bg-[#F4F2EC]/50'
+                          ? 'border-[#151515] bg-[#151515] text-white'
+                          : 'border-[#151515]/15 bg-white text-[#151515] hover:bg-[#F0F0EE]'
                       }`}
                     >
-                      <span className="block text-xs font-semibold text-[#26364A]">
+                      <span className="block text-xs font-semibold">
                         {opt.title}
                       </span>
-                      <span className="block text-[11px] text-[#68717D] mt-1 leading-snug">
+                      <span
+                        className={`block text-[11px] mt-1 leading-snug ${
+                          privacy === opt.val ? 'text-[#A3A19D]' : 'text-[#6B6A67]'
+                        }`}
+                      >
                         {opt.desc}
                       </span>
                     </button>
@@ -401,9 +423,9 @@ export const PrayerPage: React.FC = () => {
               <button
                 type="submit"
                 disabled={submittingPrayer}
-                className="inline-flex items-center justify-center gap-2 rounded-lg bg-[#B99A55] px-6 py-3 text-sm font-semibold text-[#1D2939] hover:bg-[#c5a764] transition-colors min-h-[44px] disabled:opacity-60"
+                className="btn-press inline-flex items-center justify-center gap-2 rounded-[2px] bg-[#FCDC00] px-6 py-3 text-sm font-semibold text-[#151515] hover:bg-[#ffe32e] min-h-[44px] disabled:opacity-60"
               >
-                <Send className="w-4 h-4 text-[#1D2939]" />
+                <Send className="w-4 h-4" strokeWidth={1.5} />
                 <span>{submittingPrayer ? 'Submitting...' : 'Submit Prayer Request'}</span>
               </button>
             </form>
@@ -413,64 +435,66 @@ export const PrayerPage: React.FC = () => {
 
       {/* TAB 2: My Requests Tracking */}
       {tab === 'my-requests' && (
-        <section className="rounded-2xl bg-white border border-[#E5E7EB] p-6 md:p-8 space-y-5">
+        <section className="bg-white border border-[#151515]/12 p-6 md:p-8 space-y-5 rounded-[2px]">
           {!isSignedIn ? (
             <div className="py-8 text-center space-y-4">
-              <Shield className="w-10 h-10 text-[#26364A] mx-auto" />
+              <Shield className="w-10 h-10 text-[#151515] mx-auto" strokeWidth={1.5} />
               <div className="space-y-1">
-                <h2 className="text-lg font-semibold text-[#26364A]">
+                <h2 className="font-display font-light text-2xl text-[#151515]">
                   Sign In to Track Your Prayer Requests
                 </h2>
-                <p className="text-sm text-[#68717D] max-w-md mx-auto">
+                <p className="text-sm text-[#6B6A67] max-w-md mx-auto">
                   For your privacy, only signed-in users can view the status history of their submitted prayer requests.
                 </p>
               </div>
               <button
                 type="button"
                 onClick={() => setAuthOpen(true)}
-                className="rounded-lg bg-[#B99A55] px-5 py-2.5 text-sm font-semibold text-[#1D2939] hover:bg-[#c5a764] min-h-[44px]"
+                className="btn-press rounded-[2px] bg-[#FCDC00] px-5 py-2.5 text-sm font-semibold text-[#151515] hover:bg-[#ffe32e] min-h-[44px]"
               >
                 Sign In / Create Account
               </button>
             </div>
           ) : myRequests.length === 0 ? (
-            <div className="py-8 text-center space-y-2 text-sm text-[#68717D]">
+            <div className="py-8 text-center space-y-2 text-sm text-[#6B6A67]">
               <p>You have not submitted any prayer requests while signed in.</p>
               <button
                 type="button"
                 onClick={() => setTab('submit')}
-                className="text-xs font-semibold text-[#26364A] underline"
+                className="text-xs font-semibold text-[#151515] underline"
               >
                 Submit a Prayer Request
               </button>
             </div>
           ) : (
             <div className="space-y-4">
-              <h2 className="text-lg font-semibold text-[#26364A]">Your Prayer Requests</h2>
+              <h2 className="font-display font-light text-2xl text-[#151515]">
+                Your Prayer Requests
+              </h2>
               <div className="space-y-4">
                 {myRequests.map((req) => {
                   const activeIndex = Math.max(0, statusSteps.indexOf(req.status));
                   return (
                     <article
                       key={req.id}
-                      className="rounded-xl bg-[#F4F2EC] border border-[#E5E7EB] p-5 space-y-3"
+                      className="bg-[#F0F0EE] border border-[#151515]/12 p-5 space-y-3 rounded-[2px]"
                     >
-                      <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-[#68717D]">
-                        <span className="font-semibold text-[#26364A]">{req.category}</span>
+                      <div className="flex flex-wrap items-center justify-between gap-2 text-xs text-[#6B6A67]">
+                        <span className="font-semibold text-[#151515]">{req.category}</span>
                         <span>
                           Privacy: {req.privacy.replace('_', ' ')} · Status:{' '}
-                          <strong className="text-[#252B33]">{req.status}</strong>
+                          <strong className="text-[#151515]">{req.status}</strong>
                         </span>
                       </div>
-                      <p className="text-sm text-[#252B33] leading-relaxed">{req.description}</p>
+                      <p className="text-sm text-[#151515] leading-relaxed">{req.description}</p>
                       {req.assignedPastorName && (
-                        <p className="text-xs text-[#68717D]">
+                        <p className="text-xs text-[#6B6A67]">
                           Assigned Pastor:{' '}
-                          <span className="font-semibold text-[#252B33]">{req.assignedPastorName}</span>
+                          <span className="font-medium text-[#151515]">{req.assignedPastorName}</span>
                         </p>
                       )}
                       {req.followUpDate && (
-                        <p className="text-xs text-[#68717D] tabular-nums">
+                        <p className="text-xs text-[#6B6A67] tabular-nums">
                           Scheduled Follow-up: {req.followUpDate}
                         </p>
                       )}
@@ -479,15 +503,15 @@ export const PrayerPage: React.FC = () => {
                         {statusSteps.map((step, idx) => (
                           <div key={step} className="space-y-1">
                             <div
-                              className={`h-1.5 rounded-full ${
-                                idx <= activeIndex ? 'bg-[#B99A55]' : 'bg-[#E5E7EB]'
+                              className={`h-1.5 ${
+                                idx <= activeIndex ? 'bg-[#151515]' : 'bg-[#151515]/15'
                               }`}
                             />
                             <span
                               className={`block text-[11px] ${
                                 idx <= activeIndex
-                                  ? 'font-semibold text-[#26364A]'
-                                  : 'text-[#68717D]'
+                                  ? 'font-semibold text-[#151515]'
+                                  : 'text-[#6B6A67]'
                               }`}
                             >
                               {step}
@@ -508,13 +532,13 @@ export const PrayerPage: React.FC = () => {
       {tab === 'prayer-wall' && (
         <section className="space-y-4">
           {encourageStatus && (
-            <div className="rounded-lg bg-white border border-[#E5E7EB] p-3 text-xs font-medium text-[#26364A]">
+            <div className="rounded-[2px] bg-white border border-[#151515]/15 p-3 text-xs font-medium text-[#151515]">
               {encourageStatus}
             </div>
           )}
 
           {wallEntries.length === 0 ? (
-            <div className="rounded-2xl bg-white border border-[#E5E7EB] p-8 text-center text-sm text-[#68717D]">
+            <div className="bg-white border border-[#151515]/12 p-8 text-center text-sm text-[#6B6A67] rounded-[2px]">
               No moderated prayer requests are currently on the public Prayer Wall. You can submit a request with “Public Prayer Wall” selected, and a Prayer Coordinator will review it before posting.
             </div>
           ) : (
@@ -526,40 +550,40 @@ export const PrayerPage: React.FC = () => {
                 return (
                   <article
                     key={entry.id}
-                    className="rounded-xl bg-white border border-[#E5E7EB] overflow-hidden flex flex-col justify-between"
+                    className="bg-white border border-[#151515]/12 overflow-hidden flex flex-col justify-between rounded-[2px]"
                   >
                     <div className="p-5 space-y-2.5">
-                      <div className="flex items-center justify-between text-xs text-[#68717D]">
-                        <span className="font-semibold text-[#26364A]">{entry.category}</span>
+                      <div className="flex items-center justify-between text-xs text-[#6B6A67]">
+                        <span className="font-semibold text-[#151515]">{entry.category}</span>
                         <span>{entry.displayName}</span>
                       </div>
-                      <p className="text-sm text-[#252B33] leading-relaxed">
+                      <p className="text-sm text-[#151515] leading-relaxed">
                         {entry.requestSummary}
                       </p>
 
                       {entryResponses.length > 0 && (
-                        <div className="pt-2.5 space-y-1.5 border-t border-[#E5E7EB]">
+                        <div className="pt-2.5 space-y-1.5 border-t border-[#151515]/12">
                           {entryResponses.slice(0, 3).map((r) => (
-                            <p key={r.id} className="text-xs text-[#68717D]">
-                              <strong className="text-[#252B33]">{r.authorName}:</strong> {r.message}
+                            <p key={r.id} className="text-xs text-[#6B6A67]">
+                              <strong className="text-[#151515]">{r.authorName}:</strong> {r.message}
                             </p>
                           ))}
                         </div>
                       )}
                     </div>
 
-                    <div className="space-y-3 p-4 bg-[#F4F2EC]/80 border-t border-[#E5E7EB]">
+                    <div className="space-y-3 p-4 bg-[#F0F0EE] border-t border-[#151515]/12">
                       <div className="flex items-center justify-between gap-2">
                         <button
                           type="button"
                           onClick={() => handlePrayAction(entry.id)}
-                          className={`inline-flex items-center gap-2 rounded-lg px-3.5 py-2 text-xs font-semibold transition-colors min-h-[40px] ${
+                          className={`btn-press inline-flex items-center gap-2 rounded-[2px] px-3.5 py-2 text-xs font-semibold min-h-[40px] ${
                             prayedIds[entry.id]
-                              ? 'bg-[#B99A55] text-[#1D2939]'
-                              : 'bg-white border border-[#E5E7EB] text-[#252B33] hover:bg-[#E5E7EB]/50'
+                              ? 'bg-[#FCDC00] text-[#151515]'
+                              : 'bg-white border border-[#151515]/15 text-[#151515] hover:bg-[#E9DFC6]'
                           }`}
                         >
-                          <HeartHandshake className="w-4 h-4" />
+                          <HeartHandshake className="w-4 h-4" strokeWidth={1.5} />
                           <span>
                             {prayedIds[entry.id] ? 'Praying' : 'I am praying'} ·{' '}
                             <span className="tabular-nums">{entry.prayingCount}</span>
@@ -571,9 +595,9 @@ export const PrayerPage: React.FC = () => {
                           onClick={() =>
                             setEncourageTarget(encourageTarget === entry.id ? null : entry.id)
                           }
-                          className="inline-flex items-center gap-1.5 text-xs font-semibold text-[#26364A] hover:text-[#1D2939] hover:underline min-h-[40px]"
+                          className="inline-flex items-center gap-1.5 text-xs font-medium text-[#151515] hover:underline min-h-[40px]"
                         >
-                          <MessageCircleHeart className="w-4 h-4" />
+                          <MessageCircleHeart className="w-4 h-4" strokeWidth={1.5} />
                           <span>Send Encouragement</span>
                         </button>
                       </div>
@@ -585,12 +609,12 @@ export const PrayerPage: React.FC = () => {
                             value={encourageMsg}
                             onChange={(e) => setEncourageMsg(e.target.value)}
                             placeholder="Write an encouraging note..."
-                            className="flex-1 rounded-lg border border-[#E5E7EB] bg-white px-3 py-2 text-xs focus:border-[#26364A] focus:outline-none min-h-[40px]"
+                            className="flex-1 rounded-[2px] border border-[#151515]/20 bg-white px-3 py-2 text-xs focus:border-[#151515] focus:outline-none min-h-[40px]"
                           />
                           <button
                             type="button"
                             onClick={() => handleSendEncouragement(entry.id)}
-                            className="rounded-lg bg-[#26364A] hover:bg-[#1D2939] px-3.5 py-2 text-xs font-semibold text-white min-h-[40px]"
+                            className="btn-press rounded-[2px] bg-[#151515] hover:bg-[#1F1D1C] px-3.5 py-2 text-xs font-semibold text-white min-h-[40px]"
                           >
                             Send
                           </button>
@@ -608,27 +632,29 @@ export const PrayerPage: React.FC = () => {
       {/* TAB 4: Testimonies */}
       {tab === 'testimonies' && (
         <div className="space-y-6">
-          <section className="rounded-2xl bg-white border border-[#E5E7EB] p-6 md:p-8 space-y-4">
+          <section className="bg-white border border-[#151515]/12 p-6 md:p-8 space-y-4 rounded-[2px]">
             <div className="flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-[#B99A55]" />
-              <h2 className="text-lg font-semibold text-[#26364A]">Share Your Testimony</h2>
+              <Sparkles className="w-5 h-5 text-[#151515]" strokeWidth={1.5} />
+              <h2 className="font-display font-light text-2xl text-[#151515]">
+                Share Your Testimony
+              </h2>
             </div>
-            <p className="text-xs text-[#68717D]">
+            <p className="text-xs text-[#6B6A67]">
               All testimonies are reviewed by an authorised ministry administrator prior to publication.
             </p>
 
             {testimonyDone ? (
-              <div className="rounded-xl bg-[#F4F2EC] border border-[#E5E7EB] p-5 space-y-2">
-                <p className="text-sm font-semibold text-[#26364A]">
+              <div className="bg-[#F0F0EE] border border-[#151515]/12 p-5 space-y-2 rounded-[2px]">
+                <p className="text-sm font-medium text-[#151515]">
                   Thank you for sharing your testimony!
                 </p>
-                <p className="text-xs text-[#68717D]">
+                <p className="text-xs text-[#6B6A67]">
                   It has been submitted for administrative review before publication.
                 </p>
                 <button
                   type="button"
                   onClick={() => setTestimonyDone(false)}
-                  className="text-xs font-semibold text-[#26364A] underline"
+                  className="text-xs font-semibold text-[#151515] underline"
                 >
                   Submit another testimony
                 </button>
@@ -636,14 +662,14 @@ export const PrayerPage: React.FC = () => {
             ) : (
               <form onSubmit={handleTestimonySubmit} className="space-y-4">
                 {testimonyError && (
-                  <div className="rounded-lg bg-red-50 border border-red-200 p-3 text-xs text-red-800">
+                  <div className="rounded-[2px] bg-red-50 border border-red-300 p-3 text-xs text-red-800">
                     {testimonyError}
                   </div>
                 )}
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                   <div>
-                    <label className="block text-xs font-medium text-[#252B33] mb-1">
+                    <label className="block text-xs font-medium text-[#151515] mb-1">
                       Your Name
                     </label>
                     <input
@@ -652,17 +678,17 @@ export const PrayerPage: React.FC = () => {
                       value={isAnonymous ? 'Anonymous' : testimonyName}
                       onChange={(e) => setTestimonyName(e.target.value)}
                       placeholder="Your name"
-                      className="w-full rounded-lg border border-[#E5E7EB] bg-white px-3.5 py-2.5 text-sm focus:border-[#26364A] focus:outline-none min-h-[44px] disabled:opacity-60 disabled:bg-[#F4F2EC]"
+                      className="w-full rounded-[2px] border border-[#151515]/20 bg-white px-3.5 py-2.5 text-sm focus:border-[#151515] focus:outline-none min-h-[44px] disabled:opacity-60 disabled:bg-[#F0F0EE]"
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-medium text-[#252B33] mb-1">
+                    <label className="block text-xs font-medium text-[#151515] mb-1">
                       Testimony Category
                     </label>
                     <select
                       value={testimonyCategory}
                       onChange={(e) => setTestimonyCategory(e.target.value)}
-                      className="w-full rounded-lg border border-[#E5E7EB] bg-white px-3.5 py-2.5 text-sm focus:border-[#26364A] focus:outline-none min-h-[44px]"
+                      className="w-full rounded-[2px] border border-[#151515]/20 bg-white px-3.5 py-2.5 text-sm focus:border-[#151515] focus:outline-none min-h-[44px]"
                     >
                       {PRAYER_CATEGORIES.map((c) => (
                         <option key={c} value={c}>
@@ -674,7 +700,7 @@ export const PrayerPage: React.FC = () => {
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-[#252B33] mb-1">
+                  <label className="block text-xs font-medium text-[#151515] mb-1">
                     Testimony Description *
                   </label>
                   <textarea
@@ -683,12 +709,12 @@ export const PrayerPage: React.FC = () => {
                     value={testimonyDesc}
                     onChange={(e) => setTestimonyDesc(e.target.value)}
                     placeholder="Share what God has done..."
-                    className="w-full rounded-lg border border-[#E5E7EB] bg-white px-3.5 py-2.5 text-sm focus:border-[#26364A] focus:outline-none"
+                    className="w-full rounded-[2px] border border-[#151515]/20 bg-white px-3.5 py-2.5 text-sm focus:border-[#151515] focus:outline-none"
                   />
                 </div>
 
                 <div>
-                  <label className="block text-xs font-medium text-[#252B33] mb-1">
+                  <label className="block text-xs font-medium text-[#151515] mb-1">
                     Optional Photograph URL
                   </label>
                   <input
@@ -696,26 +722,26 @@ export const PrayerPage: React.FC = () => {
                     value={testimonyPhotoUrl}
                     onChange={(e) => setTestimonyPhotoUrl(e.target.value)}
                     placeholder="https://..."
-                    className="w-full rounded-lg border border-[#E5E7EB] bg-white px-3.5 py-2.5 text-sm focus:border-[#26364A] focus:outline-none min-h-[44px]"
+                    className="w-full rounded-[2px] border border-[#151515]/20 bg-white px-3.5 py-2.5 text-sm focus:border-[#151515] focus:outline-none min-h-[44px]"
                   />
                 </div>
 
                 <div className="space-y-2">
-                  <label className="flex items-center gap-2 text-xs text-[#252B33] cursor-pointer">
+                  <label className="flex items-center gap-2 text-xs text-[#151515] cursor-pointer">
                     <input
                       type="checkbox"
                       checked={isAnonymous}
                       onChange={(e) => setIsAnonymous(e.target.checked)}
-                      className="accent-[#26364A]"
+                      className="accent-[#151515]"
                     />
                     <span>Submit anonymously</span>
                   </label>
-                  <label className="flex items-center gap-2 text-xs text-[#252B33] cursor-pointer">
+                  <label className="flex items-center gap-2 text-xs text-[#151515] cursor-pointer">
                     <input
                       type="checkbox"
                       checked={permissionToPublish}
                       onChange={(e) => setPermissionToPublish(e.target.checked)}
-                      className="accent-[#26364A]"
+                      className="accent-[#151515]"
                     />
                     <span>I grant permission to publish this testimony after review</span>
                   </label>
@@ -724,7 +750,7 @@ export const PrayerPage: React.FC = () => {
                 <button
                   type="submit"
                   disabled={submittingTestimony}
-                  className="rounded-lg bg-[#B99A55] px-5 py-2.5 text-sm font-semibold text-[#1D2939] hover:bg-[#c5a764] min-h-[44px] disabled:opacity-60"
+                  className="btn-press rounded-[2px] bg-[#FCDC00] px-5 py-2.5 text-sm font-semibold text-[#151515] hover:bg-[#ffe32e] min-h-[44px] disabled:opacity-60"
                 >
                   {submittingTestimony ? 'Submitting...' : 'Submit Testimony'}
                 </button>
@@ -733,9 +759,11 @@ export const PrayerPage: React.FC = () => {
           </section>
 
           <section className="space-y-3">
-            <h2 className="text-lg font-semibold text-[#26364A]">Published Testimonies</h2>
+            <h2 className="font-display font-light text-2xl text-[#151515]">
+              Published Testimonies
+            </h2>
             {testimonies.length === 0 ? (
-              <div className="rounded-xl bg-white border border-[#E5E7EB] p-6 text-sm text-[#68717D]">
+              <div className="bg-white border border-[#151515]/12 p-6 text-sm text-[#6B6A67] rounded-[2px]">
                 No approved testimonies have been published yet.
               </div>
             ) : (
@@ -743,19 +771,19 @@ export const PrayerPage: React.FC = () => {
                 {testimonies.map((t) => (
                   <article
                     key={t.id}
-                    className="rounded-xl bg-white border border-[#E5E7EB] p-5 space-y-2.5"
+                    className="bg-white border border-[#151515]/12 p-5 space-y-2.5 rounded-[2px]"
                   >
-                    <div className="flex items-center justify-between text-xs text-[#68717D]">
-                      <span className="font-semibold text-[#26364A]">{t.category}</span>
+                    <div className="flex items-center justify-between text-xs text-[#6B6A67]">
+                      <span className="font-semibold text-[#151515]">{t.category}</span>
                       <span>{t.isAnonymous ? 'Anonymous' : t.authorName}</span>
                     </div>
-                    <p className="text-sm text-[#252B33] leading-relaxed">{t.description}</p>
+                    <p className="text-sm text-[#151515] leading-relaxed">{t.description}</p>
                     {t.photoUrl && (
                       <img
                         src={t.photoUrl}
                         alt="Testimony attachment"
                         referrerPolicy="no-referrer"
-                        className="w-full h-44 object-cover rounded-lg"
+                        className="w-full h-44 object-cover rounded-[2px]"
                       />
                     )}
                   </article>
